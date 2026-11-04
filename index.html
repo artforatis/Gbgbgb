@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Haram Guide</title>
+<meta name="description" content="হাতিমে নামাজের সময় ও গেট, মক্কার ঐতিহাসিক স্থানের ম্যাপ, বাংলা উচ্চারণ ও শব্দার্থসহ কুরআন, নবীজির ﷺ জীবনী, দোয়া ও সুন্নত।">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Anek+Bangla:wght@400;500;600;700;800&family=Noto+Serif+Bengali:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<style>
+:root{
+  --kiswa:#000000; --gold:#C9A24A; --gold-soft:#F1E6C4; --green:#0B6B50; --green-soft:#D4E8DF;
+  --marble:#EEF1EE; --surface:#FFFFFF; --line:#D5DCD8; --ink:#17201D; --muted:#5B6863; --warn:#9A5B12;
+  --nav-h:64px;
+  --ui:"Anek Bangla", system-ui, sans-serif;
+  --read:"Noto Serif Bengali", "Anek Bangla", serif;
+  --ar:"Amiri Quran", "Amiri", "Scheherazade New", serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --marble:#0F1513; --surface:#18201D; --line:#2A3531; --ink:#E7ECE9; --muted:#A3B0AA;
+    --green-soft:#16382D; --gold-soft:#3A3120; --warn:#E0A55A;
+  }
+}
+:root[data-theme="dark"]{
+  --marble:#0F1513; --surface:#18201D; --line:#2A3531; --ink:#E7ECE9; --muted:#A3B0AA;
+  --green-soft:#16382D; --gold-soft:#3A3120; --warn:#E0A55A;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--marble);color:var(--ink);font-family:var(--ui);font-size:17px;line-height:1.55;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--green)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.ar{font-family:var(--ar);direction:rtl;line-height:2.1}
+[hidden]{display:none!important}
+
+/* kiswa band */
+.band{background:var(--kiswa);color:#fff;position:sticky;top:0;z-index:1000;padding:calc(env(safe-area-inset-top) + 8px) 16px 0}
+.band-top{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1100px;margin:0 auto}
+.brand{font-weight:800;font-size:20px}
+.offline-badge{font-size:12px;font-weight:700;color:#000;background:var(--gold);border-radius:6px;padding:1px 8px;margin-left:8px;vertical-align:2px}
+.clock{font-size:13px;color:#cfcfcf;text-align:right;line-height:1.3}
+.clock b{color:#fff;font-weight:600;font-size:16px}
+.theme-btn{background:none;border:1px solid #444;border-radius:999px;width:38px;height:38px;display:grid;place-items:center;color:#ddd}
+.embroidery{height:26px;margin:8px -16px 0;position:relative;overflow:hidden;background:
+  linear-gradient(var(--gold),var(--gold)) top/100% 2px no-repeat,
+  linear-gradient(var(--gold),var(--gold)) bottom/100% 2px no-repeat,
+  repeating-linear-gradient(90deg,transparent 0 10px,rgba(201,162,74,.35) 10px 11px,transparent 11px 22px),#000}
+.embroidery::before{content:"";position:absolute;inset:4px 0;background:radial-gradient(circle at 50% 50%,var(--gold) 0 3px,transparent 3.5px) 0 0/22px 18px repeat-x;opacity:.9}
+.status-row{display:flex;gap:8px;max-width:1100px;margin:8px auto 0;padding-bottom:10px}
+.chip{flex:1;border:1px solid #333;border-radius:12px;padding:6px 10px;min-width:0}
+.chip .who{font-size:13px;color:#bdbdbd}
+.chip .state{font-weight:700;font-size:15px;line-height:1.3}
+.chip.open{border-color:var(--gold);background:#1a1508}
+.chip.open .state{color:var(--gold)}
+.chip.wait .state{color:#E9D9A8}
+
+/* layout */
+main{max-width:1100px;margin:0 auto;padding:0 16px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom))}
+.view{display:none}
+.view.active{display:block}
+body.on-map main{max-width:none;padding:0}
+body.on-map{overflow:hidden}
+h1,h2,h3{line-height:1.3;margin:0}
+h2{font-size:24px;font-weight:800;margin:26px 0 10px}
+h3{font-size:19px;font-weight:700}
+p{margin:.5em 0}
+.lead{color:var(--muted);max-width:64ch}
+.sec{padding:6px 0 8px;border-bottom:1px solid var(--line)}
+.steps{list-style:none;margin:10px 0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:10px 0 10px 46px;border-top:1px dashed var(--line);max-width:66ch}
+.steps li:first-child{border-top:0}
+.steps li::before{content:counter(s,bengali);position:absolute;left:0;top:9px;width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px}
+.plain{list-style:disc;padding-left:22px;max-width:66ch}
+.plain li{margin:6px 0}
+.who-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.time-big{font-size:30px;font-weight:800;color:var(--green)}
+.gate-tag{display:inline-block;background:var(--kiswa);color:var(--gold);font-weight:800;border-radius:8px;padding:2px 10px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--green);color:#fff;text-decoration:none;min-height:48px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.gold{background:var(--gold);color:#000}
+.btn.small{min-height:40px;padding:8px 14px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.note{border-left:4px solid var(--gold);background:var(--gold-soft);padding:10px 14px;border-radius:0 10px 10px 0;margin:12px 0;max-width:70ch}
+.note.warn{border-left-color:var(--warn)}
+.note.field{border-left-color:var(--green);background:var(--green-soft)}
+.src{font-size:14px;color:var(--muted)}
+.hadith{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.hadith .ar{font-size:26px;text-align:right}
+
+.day{margin:14px 0 6px}
+.day-bar{position:relative;height:66px;border-radius:12px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.seg{position:absolute;top:0;bottom:0}
+.seg.peak{background:repeating-linear-gradient(135deg,rgba(154,91,18,.28) 0 6px,transparent 6px 12px)}
+.seg.calm{background:rgba(11,107,80,.12)}
+.seg.wait{top:8px;bottom:auto;height:22px;background:repeating-linear-gradient(90deg,rgba(201,162,74,.6) 0 4px,transparent 4px 8px);border-radius:4px}
+.seg.women{top:8px;bottom:auto;height:22px;background:var(--gold);border-radius:4px}
+.seg.men{top:36px;bottom:auto;height:22px;background:var(--green);border-radius:4px}
+.now-line{position:absolute;top:0;bottom:0;width:2px;background:var(--ink)}
+.day-ticks{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+
+/* map */
+.map-wrap{position:relative;height:calc(100dvh - var(--band-h,150px) - var(--nav-h) - env(safe-area-inset-bottom))}
+#map{position:absolute;inset:0;background:#cdd5d1}
+#map.vector{background:#F4F1E8}
+.map-filters{position:absolute;top:10px;left:10px;right:10px;z-index:500;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.map-filters button{flex:0 0 auto;border:0;border-radius:999px;padding:8px 14px;background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.map-filters button[aria-pressed="true"]{background:var(--kiswa);color:var(--gold)}
+.map-tools{position:absolute;right:10px;bottom:16px;z-index:500;display:flex;flex-direction:column;gap:8px}
+.map-tools button{min-width:56px;height:48px;padding:0 8px;border-radius:14px;border:0;background:var(--surface);color:var(--ink);box-shadow:0 1px 5px rgba(0,0,0,.3);display:grid;place-items:center;font-weight:700;font-size:13px;line-height:1.1}
+.sheet{position:absolute;left:10px;right:86px;bottom:16px;z-index:600;background:var(--surface);border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,.35);padding:14px 16px;max-height:55%;overflow:auto;display:none}
+.sheet.show{display:block}
+.sheet .kind{font-size:13px;color:var(--muted)}
+.sheet .x{position:absolute;top:6px;right:6px;border:0;background:none;width:40px;height:40px;font-size:24px;color:var(--muted)}
+.approx{display:inline-block;font-size:12px;font-weight:700;color:var(--warn);border:1px solid currentColor;border-radius:6px;padding:0 6px;margin-left:6px}
+.nav-panel{position:absolute;left:10px;right:10px;top:58px;z-index:650;background:var(--kiswa);color:#fff;border-radius:16px;padding:12px 14px;display:none;align-items:center;gap:14px;box-shadow:0 4px 18px rgba(0,0,0,.4)}
+.nav-panel.show{display:flex}
+.nav-arrow{width:68px;height:68px;flex:0 0 68px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center}
+.nav-arrow svg{transition:transform .25s}
+.nav-info{flex:1;min-width:0}
+.nav-dist{font-size:28px;font-weight:800;color:var(--gold);line-height:1.1}
+.nav-to{font-size:14px;color:#ddd}
+.nav-hint{font-size:13px;color:#aaa}
+.nav-btns{display:flex;flex-direction:column;gap:6px}
+.nav-btns button{border:1px solid #555;background:none;color:#fff;border-radius:10px;padding:7px 12px;font-size:14px}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);z-index:700;background:var(--kiswa);color:#fff;padding:10px 16px;border-radius:12px;font-size:15px;width:max-content;max-width:90%;display:none}
+.toast.show{display:block}
+.pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.pin span{transform:rotate(45deg);font-size:11px;font-weight:800;font-family:var(--ui)}
+.pin.gate{background:#000;color:var(--gold)}
+.pin.hateem{background:var(--gold);color:#000;width:38px;height:38px}
+.pin.holy{background:var(--green);color:#fff}
+.pin.history{background:#7A3E1D;color:#fff}
+.pin.outside{background:#2E5E8C;color:#fff}
+.pin.service{background:#fff;color:#000;border-color:#000}
+.pin.target{box-shadow:0 0 0 7px rgba(201,162,74,.65)}
+.me-dot{width:18px;height:18px;border-radius:50%;background:#1E88E5;border:3px solid #fff;box-shadow:0 0 0 6px rgba(30,136,229,.25)}
+.leaflet-container{font-family:var(--ui)}
+
+/* quran */
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;margin:14px 0 8px}
+.surah-list{list-style:none;margin:0;padding:0}
+.surah-list li button{width:100%;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 4px}
+.snum{width:36px;height:36px;display:grid;place-items:center;border:1.5px solid var(--gold);transform:rotate(45deg);font-weight:700;font-size:14px;margin-left:4px}
+.snum span{transform:rotate(-45deg)}
+.sname{font-weight:700}
+.smeta{font-size:14px;color:var(--muted)}
+.sar{font-family:var(--ar);font-size:24px;direction:rtl}
+.reader-top{position:sticky;top:var(--band-h,150px);z-index:50;background:var(--marble);padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toggle{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--surface);font-weight:600;font-size:15px}
+.toggle input{width:18px;height:18px;accent-color:var(--green)}
+.size-ctl button{width:42px;height:40px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface)}
+.surah-head{text-align:center;padding:20px 0 8px}
+.surah-head .sar{font-size:40px}
+.bism{font-family:var(--ar);font-size:30px;text-align:center;direction:rtl;margin:6px 0 2px}
+.bism-t{text-align:center;color:var(--green);font-weight:600;margin-bottom:12px}
+.ayah{padding:16px 0;border-bottom:1px solid var(--line)}
+.ayah .ar{font-size:var(--ar-size,30px);text-align:right}
+.ayah .tr{color:var(--green);font-weight:600;font-size:18px;line-height:1.75;max-width:75ch;margin:6px 0}
+.ayah .bn{font-family:var(--read);line-height:1.85;max-width:72ch}
+.ayah-no{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:700;font-size:14px;font-family:var(--ui)}
+.lbl{font-size:13px;color:var(--muted);font-weight:600}
+.wbw{display:flex;flex-wrap:wrap;flex-direction:row-reverse;gap:8px;margin:8px 0 10px}
+.w{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 10px;text-align:center;min-width:64px;max-width:170px}
+.w .wa{font-family:var(--ar);font-size:calc(var(--ar-size,30px) * .8);direction:rtl;line-height:1.7}
+.w .wt{font-size:14px;color:var(--green);font-weight:600;line-height:1.35}
+.w .wb{font-size:14px;color:var(--muted);line-height:1.35;border-top:1px dashed var(--line);padding-top:3px;margin-top:2px}
+.loading{padding:30px 0;color:var(--muted);text-align:center}
+
+/* seerah */
+.toc{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.toc button{flex:0 0 auto;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:600}
+.era{font-size:20px;font-weight:800;color:var(--green);margin:28px 0 4px;padding-top:8px;border-top:3px solid var(--gold);scroll-margin-top:calc(var(--band-h,150px) + 10px)}
+.timeline{list-style:none;margin:6px 0 10px;padding:0;position:relative}
+.timeline::before{content:"";position:absolute;left:76px;top:0;bottom:0;width:2px;background:var(--gold)}
+.ev{display:grid;grid-template-columns:64px 1fr;gap:26px}
+.ev-age{font-size:13px;color:var(--muted);text-align:right;padding-top:14px;line-height:1.25}
+.ev-age b{display:block;font-size:15px;color:var(--ink);overflow-wrap:anywhere}
+.ev details{position:relative;border-bottom:1px solid var(--line);padding:12px 0}
+.ev details::before{content:"";position:absolute;left:-22px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--marble);border:3px solid var(--green)}
+.ev details[open]::before{background:var(--gold);border-color:var(--gold)}
+.ev summary{list-style:none;cursor:pointer;font-weight:700;font-size:18px}
+.ev summary::-webkit-details-marker{display:none}
+.ev summary .more{display:block;font-weight:500;font-size:14px;color:var(--muted)}
+.ev .body{font-family:var(--read);line-height:1.95;max-width:68ch;padding-top:6px}
+.ev .body .ar{font-size:24px;text-align:right;font-family:var(--ar)}
+.ev .armean{color:var(--green);font-weight:600}
+.ev .lesson{background:var(--green-soft);border-radius:10px;padding:10px 14px;font-family:var(--ui)}
+.link-btn{background:none;border:0;color:var(--green);font-weight:700;padding:6px 0;text-decoration:underline;font-family:var(--ui)}
+
+/* duas & sunnah */
+.seg-ctl{display:flex;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:4px;margin:16px 0}
+.seg-ctl button{flex:1;border:0;background:none;border-radius:10px;padding:10px;font-weight:700}
+.seg-ctl button[aria-pressed="true"]{background:var(--green);color:#fff}
+.group-title{font-size:19px;font-weight:800;color:var(--green);margin:26px 0 0;scroll-margin-top:calc(var(--band-h,150px) + 10px)}
+.dua{padding:18px 0;border-bottom:1px solid var(--line)}
+.dua .full{font-size:30px;text-align:right}
+.dua .pron{color:var(--green);font-weight:600}
+.dua .mean{font-family:var(--read);line-height:1.85}
+.times{display:inline-block;background:var(--gold-soft);border-radius:8px;padding:1px 8px;font-size:14px;font-weight:600;color:var(--ink)}
+.sunnah{padding:14px 0;border-bottom:1px solid var(--line);max-width:70ch}
+.sunnah h3{font-size:18px}
+.sunnah p{font-family:var(--read);line-height:1.85}
+.ref{font-size:14px;color:var(--muted)}
+
+/* bottom nav */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:1100;background:var(--surface);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;border:0;background:none;height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:600;color:var(--muted)}
+.tabs button svg{width:24px;height:24px}
+.tabs button[aria-current="page"]{color:var(--green)}
+
+@media (min-width:900px){
+  body{font-size:18px}
+  .tabs{top:var(--band-h,150px);bottom:0;right:auto;width:96px;flex-direction:column;border-top:0;border-right:1px solid var(--line);justify-content:flex-start;padding-top:12px}
+  .tabs button{flex:0 0 auto;height:78px}
+  main{padding-left:112px;padding-bottom:40px}
+  body.on-map main{padding-left:96px}
+  .map-wrap{height:calc(100dvh - var(--band-h,150px))}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="band" id="band">
+  <div class="band-top">
+    <div class="brand">হারাম গাইড<span class="offline-badge" id="offBadge" hidden>অফলাইন</span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="clock">মক্কার সময়<br><b id="mkClock">--</b></div>
+      <button class="theme-btn" id="themeBtn" aria-label="রাত বা দিনের রং বদলান">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="embroidery" aria-hidden="true"></div>
+  <div class="status-row" aria-live="polite">
+    <div class="chip" id="chipW"><div class="who">মহিলা, সকাল ৬–৯টা</div><div class="state">--</div></div>
+    <div class="chip" id="chipM"><div class="who">পুরুষ, রাত ১০–১টা</div><div class="state">--</div></div>
+  </div>
+</header>
+
+<main>
+<!-- HATEEM -->
+<section class="view active" id="v-home" aria-label="হাতিম">
+  <h2>হাতিমে নামাজ: কখন, কোন গেট</h2>
+  <p class="lead">হাতিম (হিজরে ইসমাইল) কাবারই অংশ। সৌদি কর্তৃপক্ষ নারী ও পুরুষের জন্য আলাদা সময় ঠিক করে দিয়েছে। ভেতরে প্রায় ১০ মিনিট থাকা যায়।</p>
+  <div class="note field" id="fieldNote"></div>
+  <div class="two" id="hateemCols"></div>
+
+  <h2>কোন সময়ে গেলে ভালো</h2>
+  <div class="day">
+    <div class="day-bar" id="dayBar"></div>
+    <div class="day-ticks"><span>রাত ১২</span><span>সকাল ৬</span><span>দুপুর ১২</span><span>সন্ধ্যা ৬</span><span>রাত ১২</span></div>
+    <div class="legend">
+      <span><i style="background:repeating-linear-gradient(90deg,rgba(201,162,74,.8) 0 3px,transparent 3px 6px)"></i>মহিলা: গেট ৭৪-এ অপেক্ষা</span>
+      <span><i style="background:var(--gold)"></i>মহিলা: হাতিম খোলা</span>
+      <span><i style="background:var(--green)"></i>পুরুষ: হাতিম খোলা</span>
+      <span><i style="background:rgba(11,107,80,.25)"></i>হারামে ভিড় কম</span>
+      <span><i style="background:repeating-linear-gradient(135deg,rgba(154,91,18,.5) 0 3px,transparent 3px 6px)"></i>সবচেয়ে বেশি ভিড়</span>
+    </div>
+  </div>
+  <ul class="plain" id="crowdList"></ul>
+  <div class="note warn" id="warnNote"></div>
+
+  <h2>হাতিম কেন বিশেষ</h2>
+  <p class="lead">কুরাইশরা কাবা পুনর্নির্মাণের সময় হালাল টাকার অভাবে এই অংশ দেয়ালের ভেতরে নিতে পারেনি। তাই এটা বাইরে দেখা গেলেও আসলে বাইতুল্লাহর অংশ। কাবার ছাদের সোনালি নালা (মিজাবে রহমত) এর ওপরেই।</p>
+  <div class="hadith">
+    <div class="ar">صَلِّي فِي الْحِجْرِ إِنْ أَرَدْتِ دُخُولَ الْبَيْتِ، فَإِنَّمَا هُوَ قِطْعَةٌ مِنَ الْبَيْتِ</div>
+    <p>“তুমি যদি বাইতুল্লাহর ভেতরে নামাজ পড়তে চাও, তাহলে হিজরে নামাজ পড়ো; কারণ এটা বাইতুল্লাহরই একটি অংশ।” নবীজি ﷺ আয়েশা (রা.)-কে বলেছিলেন।</p>
+    <p class="src">তিরমিজি, আবু দাউদ, নাসাঈ</p>
+  </div>
+  <div class="note">এখানে দোয়া কবুলের আশা করা যায়, তবে “এখানে সব দোয়া অবশ্যই কবুল হবে”, এমন নির্দিষ্ট সহিহ হাদিস জানা নেই। কবুল আল্লাহর ইচ্ছায়।</div>
+  <ul class="plain">
+    <li>হাতিমের ভেতর দিয়ে তাওয়াফ করলে সেই চক্কর গণ্য হয় না। তাওয়াফ হাতিমের বাইরে দিয়ে করতে হয়।</li>
+    <li>মহিলারা মাহরামের সঙ্গে বের হওয়ার পর কোথায় দেখা করবেন, একটা গেট নম্বর আগে ঠিক করে নিন।</li>
+  </ul>
+  <div class="btn-row"><button class="btn ghost" data-tab="sunnah">হাতিমে পড়ার দোয়া দেখুন</button></div>
+  <p class="src" id="srcNote"></p>
+</section>
+
+<!-- MAP -->
+<section class="view" id="v-map" aria-label="ম্যাপ">
+  <div class="map-wrap">
+    <div id="map" role="application" aria-label="মক্কার ম্যাপ"></div>
+    <div class="map-filters" id="filters">
+      <button data-f="all" aria-pressed="true">সব</button>
+      <button data-f="gate" aria-pressed="false">গেট</button>
+      <button data-f="holy" aria-pressed="false">হারামের ভেতরে</button>
+      <button data-f="history" aria-pressed="false">ঐতিহাসিক</button>
+      <button data-f="outside" aria-pressed="false">মক্কার বাইরে</button>
+      <button data-f="service" aria-pressed="false">ওযু</button>
+    </div>
+    <div class="nav-panel" id="navPanel">
+      <div class="nav-arrow"><svg id="navArrow" width="36" height="36" viewBox="0 0 24 24"><path d="M12 2l6 18-6-4-6 4z" fill="#C9A24A"/></svg></div>
+      <div class="nav-info">
+        <div class="nav-dist" id="navDist">--</div>
+        <div class="nav-to" id="navTo">--</div>
+        <div class="nav-hint" id="navHint">আপনার অবস্থান খোঁজা হচ্ছে…</div>
+      </div>
+      <div class="nav-btns">
+        <button id="navStop">থামুন</button>
+        <button id="navCar" hidden>গাড়ির রাস্তা</button>
+      </div>
+    </div>
+    <div class="sheet" id="sheet" role="dialog" aria-live="polite">
+      <button class="x" id="sheetX" aria-label="বন্ধ করুন">×</button>
+      <div class="kind" id="sKind"></div>
+      <h3 id="sTitle"></h3>
+      <p id="sText"></p>
+      <div class="btn-row"><button class="btn gold" id="sGo">এখানে নিয়ে চলো</button></div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <div class="map-tools">
+      <button id="btnMe" aria-label="আমার অবস্থান"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+      <button id="btnHaram">হারাম</button>
+      <button id="btnLayer">স্যাটেলাইট</button>
+    </div>
+  </div>
+</section>
+
+<!-- QURAN -->
+<section class="view" id="v-quran" aria-label="কুরআন">
+  <div id="qList">
+    <h2>আল-কুরআন</h2>
+    <p class="lead">প্রতিটি আয়াতের আরবি, বাংলা উচ্চারণ ও বাংলা অর্থ। শব্দে শব্দে চালু করলে প্রতিটি শব্দের উচ্চারণ ও অর্থ আলাদা দেখা যায়।</p>
+    <div id="lastRead"></div>
+    <input class="search" id="qSearch" type="search" placeholder="সূরার নাম বা নম্বর লিখুন" aria-label="সূরা খুঁজুন">
+    <div class="btn-row" id="dlRow"><button class="btn ghost small" id="dlAll">সব সূরা অফলাইনের জন্য রাখুন</button><span class="src" id="dlStatus" style="align-self:center"></span></div>
+    <ul class="surah-list" id="surahList"></ul>
+  </div>
+  <div id="qReader" hidden>
+    <div class="reader-top">
+      <button class="btn ghost small" id="qBack">← সূরার তালিকা</button>
+      <label class="toggle"><input type="checkbox" id="tgTr"> উচ্চারণ</label>
+      <label class="toggle"><input type="checkbox" id="tgBn"> অর্থ</label>
+      <label class="toggle"><input type="checkbox" id="tgW"> শব্দে শব্দে</label>
+      <span class="size-ctl"><button id="arMinus" aria-label="আরবি ছোট করুন">অ−</button> <button id="arPlus" aria-label="আরবি বড় করুন">অ+</button></span>
+    </div>
+    <div id="qBody"></div>
+  </div>
+</section>
+
+<!-- SEERAH -->
+<section class="view" id="v-seerah" aria-label="নবীজির জীবনী">
+  <h2>নবীজি ﷺ এর জীবন</h2>
+  <p class="lead">জন্মের আগের মক্কা থেকে শুরু করে বিদায় পর্যন্ত, সহিহ হাদিস ও নির্ভরযোগ্য সীরাত গ্রন্থ থেকে। যে ঘটনার জায়গা মক্কায় আছে, সেটা ম্যাপে দেখা যাবে।</p>
+  <div class="hadith">
+    <div class="ar">لَّقَدْ كَانَ لَكُمْ فِي رَسُولِ اللَّهِ أُسْوَةٌ حَسَنَةٌ</div>
+    <p>“তোমাদের জন্য আল্লাহর রাসুলের মধ্যে রয়েছে উত্তম আদর্শ।”</p>
+    <p class="src">সূরা আহযাব ৩৩:২১</p>
+  </div>
+  <div class="toc" id="seerahToc"></div>
+  <div id="seerahBody"></div>
+</section>
+
+<!-- DUA & SUNNAH -->
+<section class="view" id="v-sunnah" aria-label="দোয়া ও সুন্নত">
+  <div class="seg-ctl" role="group">
+    <button id="tabDua" aria-pressed="true">দোয়া</button>
+    <button id="tabSunnah" aria-pressed="false">সুন্নত</button>
+  </div>
+  <div id="duaPane">
+    <p class="lead">আরবি, শব্দে শব্দে অর্থ, বাংলা উচ্চারণ ও পূর্ণ অর্থ। হাতিমে দুই রাকাত নামাজের পর প্রথম ভাগের দোয়াগুলো পড়তে পারেন।</p>
+    <div class="toc" id="duaToc"></div>
+    <div id="duaList"></div>
+  </div>
+  <div id="sunnahPane" hidden>
+    <div class="toc" id="sunnahToc"></div>
+    <div id="sunnahList"></div>
+  </div>
+</section>
+</main>
+
+<nav class="tabs" aria-label="প্রধান মেনু">
+  <button data-v="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="15"/><path d="M4 10h16"/><path d="M14 21v-5a2 2 0 0 1 4 0v5"/></svg>হাতিম</button>
+  <button data-v="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>ম্যাপ</button>
+  <button data-v="quran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z"/><path d="M12 6v14"/></svg>কুরআন</button>
+  <button data-v="seerah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V8l8-5 8 5v12"/><path d="M9 20v-6h6v6"/></svg>সীরাত</button>
+  <button data-v="sunnah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3v8a5 5 0 0 0 10 0V3"/><path d="M12 16v5"/></svg>দোয়া</button>
+</nav>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script>window.L || document.write('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');</script>
+<script src="translit.js"></script>
+<script src="hateem.js"></script>
+<script src="places.js"></script>
+<script src="seerah-1.js"></script>
+<script src="seerah-2.js"></script>
+<script src="seerah-3.js"></script>
+<script src="duas.js"></script>
+<script src="sunnah.js"></script>
+<script>
+"use strict";
+/* ============ helpers ============ */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const BN = "০১২৩৪৫৬৭৮৯";
+const bn = v => String(v).replace(/\d/g, d => BN[d]);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const H = window.HATEEM;
+const PLACES = window.PLACES || [];
+const IS_APP = !!window.Capacitor;
+
+/* ============ theme & online state ============ */
+(function(){
+  const t = store.get("theme", null);
+  if (t) document.documentElement.dataset.theme = t;
+  $("#themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next; store.set("theme", next);
+  });
+  const upd = () => { $("#offBadge").hidden = navigator.onLine; };
+  addEventListener("online", upd); addEventListener("offline", upd); upd();
+})();
+
+/* ============ Makkah clock & Hateem status ============ */
+function makkahNow(){ const d = new Date(); return new Date(d.getTime() + (d.getTimezoneOffset() + 180) * 60000); }
+function fmtClock(d){
+  const h = d.getHours(), m = d.getMinutes();
+  const part = h < 4 ? "রাত" : h < 12 ? "সকাল" : h < 15 ? "দুপুর" : h < 18 ? "বিকেল" : h < 20 ? "সন্ধ্যা" : "রাত";
+  return `${part} ${bn(((h + 11) % 12) + 1)}:${bn(String(m).padStart(2, "0"))}`;
+}
+function fmtDur(mins){
+  const h = Math.floor(mins / 60), m = mins % 60;
+  if (h && m) return `${bn(h)} ঘণ্টা ${bn(m)} মিনিট`;
+  return h ? `${bn(h)} ঘণ্টা` : `${bn(m)} মিনিট`;
+}
+// minutes left in a window (windows may wrap past midnight), or -1
+function inWin(wins, mins){
+  for (const [a, b] of wins) if (mins >= a && mins < b) {
+    let end = b;
+    if (b === 1440) { const nx = wins.find(w => w[0] === 0); if (nx) end = 1440 + nx[1]; }
+    return end - mins;
+  }
+  return -1;
+}
+function untilWin(wins, mins){
+  let best = Infinity;
+  for (const [a] of wins) { if (a === 0 && wins.some(w => w[1] === 1440)) continue; const d = (a - mins + 1440) % 1440; if (d < best) best = d; }
+  return best;
+}
+function tick(){
+  const d = makkahNow(), mins = d.getHours() * 60 + d.getMinutes();
+  $("#mkClock").textContent = fmtClock(d);
+  for (const [key, id] of [["women", "#chipW"], ["men", "#chipM"]]) {
+    const g = H[key], el = $(id);
+    const left = inWin(g.open, mins), waitLeft = inWin(g.wait || [], mins);
+    el.classList.toggle("open", left >= 0);
+    el.classList.toggle("wait", left < 0 && waitLeft >= 0);
+    $(".state", el).textContent = left >= 0 ? `এখন খোলা, আর ${fmtDur(left)}`
+      : waitLeft >= 0 ? (key === "women" ? "গেট ৭৪-এ অপেক্ষার সময়" : "লাইনে দাঁড়ানোর সময়")
+      : `খুলবে ${fmtDur(untilWin(g.open, mins))} পর`;
+  }
+  const nl = $("#nowLine"); if (nl) nl.style.left = (mins / 1440 * 100) + "%";
+}
+function setBandH(){ document.documentElement.style.setProperty("--band-h", $("#band").offsetHeight + "px"); }
+addEventListener("resize", setBandH);
+
+/* ============ Home (from content/hateem.js) ============ */
+function renderHome(){
+  $("#fieldNote").textContent = H.women.fieldNote || "";
+  $("#fieldNote").hidden = !H.women.fieldNote;
+  $("#hateemCols").innerHTML = ["women", "men"].map(k => {
+    const g = H[k];
+    return `<div class="sec">
+      <div class="who-head"><h3>${g.title}</h3><span class="time-big">${g.time}</span></div>
+      <p><span class="gate-tag">${g.gateTag}</span> ${esc(g.gateText)}</p>
+      <ol class="steps">${g.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+      <div class="btn-row"><button class="btn ${k === "women" ? "gold" : ""}" data-go="${g.goto}">${k === "women" ? "গেট ৭৪-এ নিয়ে চলো" : "হাতিমে নিয়ে চলো"}</button>
+      ${k === "women" ? '<button class="btn ghost" data-show="wudu-w3">কাছের ওযুখানা</button>' : ""}</div></div>`;
+  }).join("");
+  $("#crowdList").innerHTML = H.crowd.map(c => `<li>${esc(c)}</li>`).join("");
+  $("#warnNote").textContent = H.warn;
+  $("#srcNote").textContent = "তথ্যসূত্র: " + H.sources + " সর্বশেষ হালনাগাদ: " + H.updated + "।";
+  const pct = m => (m / 1440 * 100) + "%";
+  const seg = (cls, [a, b]) => `<div class="seg ${cls}" style="left:${pct(a)};width:${pct(b - a)}"></div>`;
+  let bar = seg("peak", [1020, 1260]) + seg("calm", [0, 240]) + seg("calm", [540, 960]) + seg("calm", [1320, 1440]);
+  (H.women.wait || []).forEach(w => bar += seg("wait", w));
+  H.women.open.forEach(w => bar += seg("women", w));
+  H.men.open.forEach(w => bar += seg("men", w));
+  $("#dayBar").innerHTML = bar + '<div class="now-line" id="nowLine"></div>';
+}
+
+/* ============ Map ============ */
+const KIND_BN = { gate:"গেট", holy:"হারামের ভেতরে", history:"ঐতিহাসিক স্থান", outside:"মক্কার বাইরে", service:"ওযুখানা", hateem:"হাতিম" };
+const byId = id => PLACES.find(p => p.id === id);
+const HARAM = [21.4226, 39.8262];
+let map = null, base = {}, baseName = store.get("mapBase", "sat"), markers = {}, filter = "all";
+let selected = null, nav = null;
+const me = { marker:null, circle:null, lat:null, lng:null, acc:null, heading:null };
+
+// tile layer that keeps every tile you have seen, so those parts of the map work again without internet
+function cachedTiles(url, opt){
+  const Layer = L.TileLayer.extend({
+    createTile(coords, done){
+      const img = document.createElement("img");
+      img.alt = ""; img.setAttribute("role", "presentation");
+      const src = this.getTileUrl(coords);
+      const fin = () => done(null, img);
+      img.onload = fin; img.onerror = () => done(new Error("tile"), img);
+      if (!("caches" in window)) { img.src = src; return img; }
+      caches.open("hg-tiles").then(c => c.match(src).then(hit => {
+        if (hit) return hit.blob();
+        return fetch(src, { mode:"cors" }).then(r => { if (!r.ok) throw 0; c.put(src, r.clone()); return r.blob(); });
+      })).then(b => { const u = URL.createObjectURL(b); img.onload = () => { URL.revokeObjectURL(u); fin(); }; img.src = u; })
+        .catch(() => { img.src = src; });
+      return img;
+    }
+  });
+  return new Layer(url, opt);
+}
+let vectorLayer = null, vectorState = "none";
+function loadVector(){
+  if (vectorState === "ready") return Promise.resolve(vectorLayer);
+  vectorState = "loading";
+  return fetch("data/osm.json").then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => {
+    const rend = L.canvas({ padding:.5 });
+    const g = L.layerGroup();
+    const pts = f => { const a = []; for (let i = 0; i < f.length; i += 2) a.push([f[i], f[i+1]]); return a; };
+    const C = { b:"#D9D3C3", m:"#E9D9A8", c:"#CFE3D6", main:"#FFFFFF", foot:"#FBF8F0" };
+    (d.c || []).forEach(f => L.polygon(pts(f), { renderer:rend, stroke:false, fillColor:C.c, fillOpacity:1, interactive:false }).addTo(g));
+    (d.b || []).forEach(f => L.polygon(pts(f), { renderer:rend, color:"#B9B19C", weight:.5, fillColor:C.b, fillOpacity:1, interactive:false }).addTo(g));
+    (d.m || []).forEach(f => L.polygon(pts(f), { renderer:rend, color:"#C9A24A", weight:1, fillColor:C.m, fillOpacity:1, interactive:false }).addTo(g));
+    (d.main || []).forEach(f => L.polyline(pts(f), { renderer:rend, color:C.main, weight:5, interactive:false }).addTo(g));
+    (d.foot || []).forEach(f => L.polyline(pts(f), { renderer:rend, color:"#B9B19C", weight:1.5, dashArray:"4 3", interactive:false }).addTo(g));
+    L.circle([21.42251, 39.82618], { renderer:rend, radius:9, color:"#000", fillColor:"#000", fillOpacity:1, interactive:false }).addTo(g);
+    vectorLayer = g; vectorState = "ready"; return g;
+  }).catch(() => { vectorState = "none"; return null; });
+}
+const BASE_LABEL = { sat:"স্যাটেলাইট", street:"রাস্তা", off:"অফলাইন" };
+function setBase(name){
+  if (!map) return;
+  Object.values(base).forEach(l => map.removeLayer(l));
+  if (vectorLayer) map.removeLayer(vectorLayer);
+  $("#map").classList.toggle("vector", name === "off");
+  baseName = name; store.set("mapBase", name);
+  $("#btnLayer").textContent = BASE_LABEL[name];
+  if (name === "off") {
+    loadVector().then(g => {
+      if (g && baseName === "off") g.addTo(map);
+      else if (!g) toast("অফলাইন ম্যাপ এখনো তৈরি হয়নি। ইন্টারনেট থাকলে স্যাটেলাইট ম্যাপ একবার ঘুরে দেখুন, সেটুকু পরে অফলাইনেও দেখা যাবে।");
+    });
+  } else base[name].addTo(map);
+}
+function initMap(){
+  if (map) return;
+  if (!window.L) { $("#map").innerHTML = '<p class="loading">ম্যাপ খোলা যায়নি।</p>'; return; }
+  map = L.map("map", { zoomControl:false }).setView(HARAM, 17);
+  base.sat = cachedTiles("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom:20, maxNativeZoom:19, attribution:"ছবি © Esri" });
+  base.street = cachedTiles("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom:20, maxNativeZoom:19, attribution:"© OpenStreetMap" });
+  map.attributionControl.addAttribution("© OpenStreetMap contributors");
+  if (!navigator.onLine) baseName = "off";
+  setBase(baseName);
+  L.control.zoom({ position:"bottomleft" }).addTo(map);
+  for (const p of PLACES) {
+    const icon = L.divIcon({ className:"", iconSize:[30,30], iconAnchor:[15,30], html:`<div class="pin ${p.kind}" data-pin="${p.id}"><span>${p.label}</span></div>` });
+    const m = L.marker([p.lat, p.lng], { icon, title:p.name, keyboard:true });
+    m.on("click", () => openSheet(p.id));
+    markers[p.id] = m;
+  }
+  applyFilter(false);
+}
+function applyFilter(move = true){
+  if (!map) return;
+  for (const p of PLACES) {
+    const show = filter === "all" || p.kind === filter || (p.kind === "hateem" && (filter === "holy" || filter === "gate"));
+    if (show || (nav && nav.p.id === p.id)) markers[p.id].addTo(map); else markers[p.id].remove();
+  }
+  if (!move) return;
+  if (filter === "outside") map.setView([21.41, 39.88], 12);
+  else if (filter === "history") map.setView([21.428, 39.8285], 15);
+  else if (filter !== "all") map.setView(HARAM, 17);
+}
+$("#filters").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  filter = b.dataset.f;
+  $$("#filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  applyFilter();
+});
+$("#btnLayer").addEventListener("click", () => setBase(baseName === "sat" ? "street" : baseName === "street" ? "off" : "sat"));
+$("#btnHaram").addEventListener("click", () => map && map.setView(HARAM, 17));
+$("#btnMe").addEventListener("click", () => { startWatch(); if (me.lat !== null && map) map.setView([me.lat, me.lng], 18); else toast("আপনার অবস্থান খোঁজা হচ্ছে…"); });
+
+let toastT;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 5000); }
+
+function openSheet(id){
+  const p = byId(id); if (!p) return;
+  selected = p;
+  $("#sKind").textContent = KIND_BN[p.kind];
+  $("#sTitle").innerHTML = esc(p.name) + (p.approx ? '<span class="approx">আনুমানিক</span>' : "");
+  $("#sText").textContent = p.text;
+  $("#sheet").classList.add("show");
+  if (map) map.panTo([p.lat, p.lng]);
+}
+$("#sheetX").addEventListener("click", () => $("#sheet").classList.remove("show"));
+$("#sGo").addEventListener("click", () => selected && startNav(selected.id));
+
+/* --- location & straight-line walking guide (works without internet) --- */
+let watchId = null, oriOn = false;
+function startWatch(){
+  if (watchId !== null) return;
+  if (!("geolocation" in navigator)) { $("#navHint").textContent = "এই ডিভাইসে অবস্থান পাওয়া যাচ্ছে না।"; return; }
+  watchId = navigator.geolocation.watchPosition(onPos, err => {
+    const msg = err.code === 1 ? "অবস্থানের অনুমতি দিন (ফোনের সেটিংস থেকে)।" : "অবস্থান পাওয়া যাচ্ছে না। একটু খোলা জায়গায় যান।";
+    $("#navHint").textContent = msg; toast(msg);
+    if (err.code === 1) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+  }, { enableHighAccuracy:true, maximumAge:2000, timeout:25000 });
+  if (!oriOn) {
+    oriOn = true;
+    const onOri = e => {
+      let h = null;
+      if (typeof e.webkitCompassHeading === "number") h = e.webkitCompassHeading;
+      else if (e.absolute && typeof e.alpha === "number") h = (360 - e.alpha) % 360;
+      if (h !== null) { me.heading = h + ((screen.orientation && screen.orientation.angle) || 0); updateNav(); }
+    };
+    if ("ondeviceorientationabsolute" in window) addEventListener("deviceorientationabsolute", onOri);
+    else addEventListener("deviceorientation", onOri);
+  }
+}
+function onPos(pos){
+  me.lat = pos.coords.latitude; me.lng = pos.coords.longitude; me.acc = pos.coords.accuracy;
+  if (map) {
+    if (!me.marker) {
+      me.marker = L.marker([me.lat, me.lng], { icon:L.divIcon({ className:"", html:'<div class="me-dot"></div>', iconSize:[18,18], iconAnchor:[9,9] }), zIndexOffset:1000 }).addTo(map);
+      me.circle = L.circle([me.lat, me.lng], { radius:me.acc, color:"#1E88E5", weight:1, fillOpacity:.08, interactive:false }).addTo(map);
+    } else { me.marker.setLatLng([me.lat, me.lng]); me.circle.setLatLng([me.lat, me.lng]).setRadius(me.acc); }
+  }
+  updateNav();
+}
+const toRad = d => d * Math.PI / 180;
+function dist(a, b, c, d){
+  const R = 6371000, x = toRad(c - a), y = toRad(d - b);
+  const h = Math.sin(x/2)**2 + Math.cos(toRad(a)) * Math.cos(toRad(c)) * Math.sin(y/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function bearing(a, b, c, d){
+  const y = Math.sin(toRad(d - b)) * Math.cos(toRad(c));
+  const x = Math.cos(toRad(a)) * Math.sin(toRad(c)) - Math.sin(toRad(a)) * Math.cos(toRad(c)) * Math.cos(toRad(d - b));
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+const DIRS = ["উত্তর", "উত্তর-পূর্ব", "পূর্ব", "দক্ষিণ-পূর্ব", "দক্ষিণ", "দক্ষিণ-পশ্চিম", "পশ্চিম", "উত্তর-পশ্চিম"];
+function fmtDist(m){ return m >= 1000 ? `${bn((m/1000).toFixed(1))} কিমি` : `${bn(Math.round(m))} মিটার`; }
+
+function startNav(id){
+  const p = byId(id); if (!p) return;
+  show("map");
+  setTimeout(() => {
+    initMap();
+    stopNav(true);
+    nav = { p, line:null, car:null, arrived:false };
+    $("#sheet").classList.remove("show");
+    $("#navPanel").classList.add("show");
+    $("#navTo").textContent = p.name;
+    $("#navDist").textContent = "--";
+    $("#navHint").textContent = "আপনার অবস্থান খোঁজা হচ্ছে…";
+    $("#navCar").hidden = true;
+    if (map) {
+      markers[p.id].addTo(map);
+      map.setView([p.lat, p.lng], p.kind === "outside" ? 14 : 18);
+      setTimeout(() => { const el = document.querySelector(`[data-pin="${p.id}"]`); if (el) el.classList.add("target"); }, 50);
+    }
+    startWatch(); updateNav();
+  }, 60);
+}
+function stopNav(silent){
+  if (nav) { if (nav.line) nav.line.remove(); if (nav.car) nav.car.remove(); }
+  $$(".pin.target").forEach(x => x.classList.remove("target"));
+  nav = null;
+  if (!silent) $("#navPanel").classList.remove("show");
+}
+$("#navStop").addEventListener("click", () => stopNav(false));
+$("#navCar").addEventListener("click", () => nav && carRoute());
+
+function updateNav(){
+  if (!nav || me.lat === null) return;
+  const p = nav.p;
+  const d = dist(me.lat, me.lng, p.lat, p.lng);
+  const brg = bearing(me.lat, me.lng, p.lat, p.lng);
+  if (map) {
+    const ll = [[me.lat, me.lng], [p.lat, p.lng]];
+    if (nav.line) nav.line.setLatLngs(ll);
+    else {
+      nav.line = L.polyline(ll, { color:"#C9A24A", weight:6, opacity:.95, dashArray:"10 10", interactive:false }).addTo(map);
+      map.fitBounds(L.latLngBounds(ll), { padding:[80, 80], maxZoom:18 });
+    }
+  }
+  if (d < 25) {
+    $("#navDist").textContent = "পৌঁছে গেছেন";
+    $("#navHint").textContent = "আপনি এখন " + p.name + "-এর কাছে।";
+    if (!nav.arrived && navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    nav.arrived = true;
+    return;
+  }
+  nav.arrived = false;
+  const walkMin = Math.max(1, Math.round(d * 1.2 / 75));
+  $("#navDist").textContent = fmtDist(d);
+  $("#navTo").textContent = `${p.name}। হেঁটে প্রায় ${bn(walkMin)} মিনিট`;
+  const rel = me.heading === null ? brg : brg - me.heading;
+  $("#navArrow").style.transform = `rotate(${rel}deg)`;
+  let hint = me.heading === null
+    ? `${DIRS[Math.round(brg / 45) % 8]} দিকে সোজা হাঁটুন (তীরের মাথা উত্তর ধরে)।`
+    : "তীর যেদিকে দেখাচ্ছে, সেদিকে সোজা হাঁটুন।";
+  if (me.acc > 60) hint = "মসজিদের ভেতরে জিপিএস দুর্বল। গেট নম্বরের সাইন দেখে চলুন।";
+  $("#navHint").textContent = hint;
+  $("#navCar").hidden = !(d > 2500 && navigator.onLine);
+}
+async function carRoute(){
+  const p = nav.p;
+  try {
+    const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${me.lng},${me.lat};${p.lng},${p.lat}?overview=full&geometries=geojson`);
+    const j = await r.json();
+    const pts = j.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+    if (!nav || nav.p !== p) return;
+    if (nav.car) nav.car.remove();
+    nav.car = L.polyline(pts, { color:"#2E5E8C", weight:5, opacity:.9, interactive:false }).addTo(map);
+    map.fitBounds(nav.car.getBounds(), { padding:[60, 60] });
+    toast(`গাড়িতে প্রায় ${bn(Math.round(j.routes[0].duration / 60))} মিনিট (নীল রেখা)।`);
+  } catch(e) { toast("গাড়ির রাস্তা পাওয়া যায়নি। ইন্টারনেট দেখুন।"); }
+}
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]"); if (g) { startNav(g.dataset.go); return; }
+  const s = e.target.closest("[data-show]");
+  if (s) { show("map"); setTimeout(() => { initMap(); openSheet(s.dataset.show); }, 60); return; }
+  const t = e.target.closest("[data-tab]"); if (t) show(t.dataset.tab);
+});
+
+/* ============ Views ============ */
+function show(v){
+  $$(".view").forEach(x => x.classList.toggle("active", x.id === "v-" + v));
+  $$(".tabs button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+  try { if (location.hash !== "#" + v) history.replaceState(null, "", "#" + v); } catch(e) {}
+  document.body.classList.toggle("on-map", v === "map");
+  window.scrollTo(0, 0);
+  setBandH();
+  if (v === "map") setTimeout(() => { initMap(); map && map.invalidateSize(); }, 30);
+  if (v === "quran" && !$("#surahList").children.length) renderSurahList();
+  if (v === "seerah") renderSeerah();
+  if (v === "sunnah") renderDuas();
+}
+$$(".tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
+
+/* ============ Quran ============ */
+const QC = "https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/chapters/bn/";
+const SURAHS = [
+["الفاتحة","আল-ফাতিহা",7],["البقرة","আল-বাকারা",286],["آل عمران","আলে ইমরান",200],["النساء","আন-নিসা",176],["المائدة","আল-মায়িদা",120],["الأنعام","আল-আনআম",165],["الأعراف","আল-আরাফ",206],["الأنفال","আল-আনফাল",75],["التوبة","আত-তাওবা",129],["يونس","ইউনুস",109],
+["هود","হুদ",123],["يوسف","ইউসুফ",111],["الرعد","আর-রাদ",43],["إبراهيم","ইবরাহিম",52],["الحجر","আল-হিজর",99],["النحل","আন-নাহল",128],["الإسراء","আল-ইসরা",111],["الكهف","আল-কাহফ",110],["مريم","মারইয়াম",98],["طه","ত্বা-হা",135],
+["الأنبياء","আল-আম্বিয়া",112],["الحج","আল-হজ",78],["المؤمنون","আল-মুমিনুন",118],["النور","আন-নুর",64],["الفرقان","আল-ফুরকান",77],["الشعراء","আশ-শুআরা",227],["النمل","আন-নামল",93],["القصص","আল-কাসাস",88],["العنكبوت","আল-আনকাবুত",69],["الروم","আর-রুম",60],
+["لقمان","লুকমান",34],["السجدة","আস-সাজদা",30],["الأحزاب","আল-আহযাব",73],["سبإ","সাবা",54],["فاطر","ফাতির",45],["يس","ইয়াসিন",83],["الصافات","আস-সাফফাত",182],["ص","সোয়াদ",88],["الزمر","আয-যুমার",75],["غافر","গাফির",85],
+["فصلت","ফুসসিলাত",54],["الشورى","আশ-শুরা",53],["الزخرف","আয-যুখরুফ",89],["الدخان","আদ-দুখান",59],["الجاثية","আল-জাসিয়া",37],["الأحقاف","আল-আহকাফ",35],["محمد","মুহাম্মাদ",38],["الفتح","আল-ফাতহ",29],["الحجرات","আল-হুজুরাত",18],["ق","ক্বাফ",45],
+["الذاريات","আয-যারিয়াত",60],["الطور","আত-তুর",49],["النجم","আন-নাজম",62],["القمر","আল-কামার",55],["الرحمن","আর-রহমান",78],["الواقعة","আল-ওয়াকিয়া",96],["الحديد","আল-হাদিদ",29],["المجادلة","আল-মুজাদালা",22],["الحشر","আল-হাশর",24],["الممتحنة","আল-মুমতাহিনা",13],
+["الصف","আস-সাফ",14],["الجمعة","আল-জুমুআ",11],["المنافقون","আল-মুনাফিকুন",11],["التغابن","আত-তাগাবুন",18],["الطلاق","আত-তালাক",12],["التحريم","আত-তাহরিম",12],["الملك","আল-মুলক",30],["القلم","আল-কলম",52],["الحاقة","আল-হাক্কা",52],["المعارج","আল-মাআরিজ",44],
+["نوح","নুহ",28],["الجن","আল-জিন",28],["المزمل","আল-মুযযাম্মিল",20],["المدثر","আল-মুদ্দাসসির",56],["القيامة","আল-কিয়ামা",40],["الإنسان","আল-ইনসান",31],["المرسلات","আল-মুরসালাত",50],["النبإ","আন-নাবা",40],["النازعات","আন-নাযিআত",46],["عبس","আবাসা",42],
+["التكوير","আত-তাকবির",29],["الانفطار","আল-ইনফিতার",19],["المطففين","আল-মুতাফফিফিন",36],["الانشقاق","আল-ইনশিকাক",25],["البروج","আল-বুরুজ",22],["الطارق","আত-তারিক",17],["الأعلى","আল-আলা",19],["الغاشية","আল-গাশিয়া",26],["الفجر","আল-ফাজর",30],["البلد","আল-বালাদ",20],
+["الشمس","আশ-শামস",15],["الليل","আল-লাইল",21],["الضحى","আদ-দুহা",11],["الشرح","আশ-শারহ",8],["التين","আত-তিন",8],["العلق","আল-আলাক",19],["القدر","আল-কদর",5],["البينة","আল-বায়্যিনা",8],["الزلزلة","আয-যিলযাল",8],["العاديات","আল-আদিয়াত",11],
+["القارعة","আল-কারিআ",11],["التكاثر","আত-তাকাসুর",8],["العصر","আল-আসর",3],["الهمزة","আল-হুমাযা",9],["الفيل","আল-ফিল",5],["قريش","কুরাইশ",4],["الماعون","আল-মাউন",7],["الكوثر","আল-কাওসার",3],["الكافرون","আল-কাফিরুন",6],["النصر","আন-নাসর",3],
+["المسد","আল-মাসাদ",5],["الإخلاص","আল-ইখলাস",4],["الفلق","আল-ফালাক",5],["الناس","আন-নাস",6]
+];
+function renderSurahList(q=""){
+  const t = q.trim(), digits = t.replace(/[০-৯]/g, d => BN.indexOf(d));
+  const html = SURAHS.map(([ar, name, n], i) => {
+    const num = i + 1;
+    if (t && !(name.includes(t) || ar.includes(t) || String(num) === digits)) return "";
+    return `<li><button data-s="${num}"><span class="snum"><span>${bn(num)}</span></span>
+      <span><span class="sname">${name}</span><br><span class="smeta">${bn(n)} আয়াত</span></span>
+      <span class="sar">${ar}</span></button></li>`;
+  }).join("");
+  $("#surahList").innerHTML = html || '<li class="loading">কোনো সূরা মেলেনি।</li>';
+  const lr = store.get("lastRead", null);
+  $("#lastRead").innerHTML = lr ? `<button class="btn" data-s="${lr.s}" data-a="${lr.a}">আবার পড়া শুরু: ${SURAHS[lr.s-1][1]}, আয়াত ${bn(lr.a)}</button>` : "";
+}
+$("#qSearch").addEventListener("input", e => renderSurahList(e.target.value));
+$("#v-quran").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (b) openSurah(+b.dataset.s, +(b.dataset.a || 0)); });
+if (IS_APP) $("#dlRow").hidden = true; // the app already carries every surah
+
+const qopt = Object.assign({ tr:true, bn:true, w:false }, store.get("qopt", {}));
+let arSize = store.get("arSize", 30), curSurah = null;
+document.documentElement.style.setProperty("--ar-size", arSize + "px");
+function setAr(v){ arSize = Math.max(20, Math.min(54, v)); store.set("arSize", arSize); document.documentElement.style.setProperty("--ar-size", arSize + "px"); }
+$("#arPlus").addEventListener("click", () => setAr(arSize + 2));
+$("#arMinus").addEventListener("click", () => setAr(arSize - 2));
+[["tgTr","tr"],["tgBn","bn"],["tgW","w"]].forEach(([id, k]) => {
+  const el = $("#" + id); el.checked = qopt[k];
+  el.addEventListener("change", () => { qopt[k] = el.checked; store.set("qopt", qopt); applyQopt(); if (k === "w" && el.checked && curSurah) fillWordMeanings(curSurah); });
+});
+function applyQopt(){
+  $$(".ayah .tr").forEach(x => x.hidden = !qopt.tr);
+  $$(".ayah .bn").forEach(x => x.hidden = !qopt.bn);
+  $$(".ayah .wbw").forEach(x => x.hidden = !qopt.w);
+}
+$("#qBack").addEventListener("click", () => { $("#qReader").hidden = true; $("#qList").hidden = false; renderSurahList($("#qSearch").value); });
+
+async function loadSurah(n){
+  try { const r = await fetch("data/quran/" + n + ".json"); if (r.ok) return await r.json(); } catch(e) {}
+  // fallback when the offline data is not on this server yet: online text, pronunciation made on the device
+  const d = await (await fetch(QC + n + ".json")).json();
+  const T = window.BNTranslit;
+  return { n, type:d.type, count:d.total_verses, wbw:false, verses: d.verses.map(v => {
+    const words = v.text.split(/\s+/).filter(w => /[ء-يٱ]/.test(w));
+    return { a:v.text, t: T ? T.translitVerse(v.text) : "", b:v.translation, w: words.map(w => [w, "", T ? T.translitWord(w) : ""]) };
+  }) };
+}
+async function openSurah(n, ayah=0){
+  $("#qList").hidden = true; $("#qReader").hidden = false;
+  const body = $("#qBody");
+  body.innerHTML = '<p class="loading">সূরা খোলা হচ্ছে…</p>';
+  window.scrollTo(0, 0);
+  let data;
+  try { data = await loadSurah(n); }
+  catch(e){ body.innerHTML = '<p class="loading">সূরাটি খোলা যায়নি। ইন্টারনেট চালু করে আবার চেষ্টা করুন।</p>'; return; }
+  curSurah = data;
+  const [ar, name] = SURAHS[n-1];
+  let html = `<div class="surah-head"><div class="sar">سورة ${ar}</div><h2 style="margin:4px 0">${name}</h2>
+    <p class="smeta">${data.type === "meccan" ? "মাক্কী" : "মাদানী"} সূরা, ${bn(data.count || data.verses.length)} আয়াত</p></div>`;
+  if (n !== 1 && n !== 9) html += `<div class="bism">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</div><div class="bism-t">বিসমিল্লা-হির রাহমা-নির রাহীম</div>`;
+  data.verses.forEach((v, i) => {
+    const id = i + 1;
+    html += `<article class="ayah" id="a${id}" data-ayah="${id}">
+      <div class="ar">${esc(v.a)} <span class="ayah-no">${bn(id)}</span></div>
+      <div class="wbw" data-wbw="${id}">${(v.w || []).map(w => `<div class="w"><div class="wa">${esc(w[0])}</div>${w[2] ? `<div class="wt">${esc(w[2])}</div>` : ""}<div class="wb">${w[1] ? esc(w[1]) : "&nbsp;"}</div></div>`).join("")}</div>
+      <p class="tr"><span class="lbl">উচ্চারণ: </span>${esc(v.t)}</p>
+      <p class="bn"><span class="lbl">অর্থ: </span>${esc(v.b)}</p></article>`;
+  });
+  html += `<p class="src">আরবি পাঠ ও বাংলা অর্থ: quran-cloud (CC BY-SA 4.0)। শব্দার্থ: Quran.com। বাংলা উচ্চারণ আরবি থেকে নিয়ম মেনে তৈরি। বাংলা অক্ষরে আরবির সব উচ্চারণ পুরোপুরি লেখা যায় না, তাই সঠিক তিলাওয়াত কোনো আলেম বা কারীর কাছে শিখে নিন।</p>`;
+  body.innerHTML = html;
+  applyQopt();
+  store.set("lastRead", { s:n, a: ayah || 1 });
+  if (ayah) { const el = document.getElementById("a" + ayah); el && el.scrollIntoView({ block:"start" }); }
+  observeAyahs(n);
+  if (qopt.w) fillWordMeanings(data);
+}
+let ayahObserver;
+function observeAyahs(n){
+  if (ayahObserver) ayahObserver.disconnect();
+  if (!("IntersectionObserver" in window)) return;
+  ayahObserver = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) store.set("lastRead", { s:n, a:+e.target.dataset.ayah }); }, { rootMargin:"-40% 0px -55% 0px" });
+  $$(".ayah").forEach(a => ayahObserver.observe(a));
+}
+// word meanings come with the offline data; if a surah has none, ask Quran.com once (needs internet)
+async function fillWordMeanings(data){
+  if (data.wbw || data._wbwTried || !navigator.onLine) return;
+  data._wbwTried = true;
+  try {
+    let page = 1, total = 1;
+    do {
+      const j = await (await fetch(`https://api.quran.com/api/v4/verses/by_chapter/${data.n}?language=bn&words=true&word_fields=text_uthmani&word_translation_language=bn&per_page=50&page=${page}`)).json();
+      total = (j.pagination && j.pagination.total_pages) || 1;
+      for (const v of j.verses || []) {
+        const box = document.querySelector(`[data-wbw="${v.verse_number}"]`); if (!box || curSurah !== data) continue;
+        const words = (v.words || []).filter(w => w.char_type_name === "word");
+        const chips = [...box.children];
+        if (chips.length === words.length) chips.forEach((c, i) => { $(".wb", c).textContent = (words[i].translation && words[i].translation.text) || ""; });
+      }
+      page++;
+    } while (page <= total && curSurah === data);
+    data.wbw = true;
+  } catch(e) {}
+}
+$("#dlAll").addEventListener("click", async () => {
+  const st = $("#dlStatus"); let ok = 0;
+  for (let i = 1; i <= 114; i++) {
+    try { const r = await fetch("data/quran/" + i + ".json"); if (r.ok) { await r.json(); ok++; } else { await fetch(QC + i + ".json"); ok++; } } catch(e){}
+    st.textContent = `${bn(i)}/১১৪`;
+  }
+  try { await fetch("data/osm.json"); } catch(e) {}
+  st.textContent = ok === 114 ? "সব সূরা এই ডিভাইসে রাখা হয়েছে" : `${bn(ok)}টি রাখা হয়েছে, বাকিগুলোর জন্য ইন্টারনেট দরকার`;
+});
+
+/* ============ Seerah ============ */
+let seerahDone = false;
+function renderSeerah(){
+  if (seerahDone) return; seerahDone = true;
+  const S = window.SEERAH || [];
+  if (!S.length) { $("#seerahBody").innerHTML = '<p class="loading">সীরাতের অধ্যায়গুলো পাওয়া যায়নি।</p>'; return; }
+  const eras = [];
+  S.forEach(c => { if (!eras.includes(c.era)) eras.push(c.era); });
+  $("#seerahToc").innerHTML = eras.map((e, i) => `<button data-era="${i}">${esc(e)}</button>`).join("");
+  let html = "";
+  eras.forEach((e, i) => {
+    html += `<h3 class="era" id="era${i}">${esc(e)}</h3><ol class="timeline">`;
+    S.filter(c => c.era === e).forEach(c => {
+      const lesson = c.lesson ? String(c.lesson).replace(/^শিক্ষা\s*[:—–-]\s*/, "") : "";
+      html += `<li class="ev"><div class="ev-age"><b>${esc(c.age)}</b>${esc(c.yr || "")}</div>
+      <details><summary>${esc(c.t)}<span class="more">পড়তে চাপুন</span></summary>
+      <div class="body">
+        ${c.ar ? `<div class="ar">${esc(c.ar)}</div>${c.arMean ? `<p class="armean">${esc(c.arMean)}</p>` : ""}` : ""}
+        ${(c.body || []).map(p => `<p>${esc(p)}</p>`).join("")}
+        ${lesson ? `<p class="lesson"><b>শিক্ষা:</b> ${esc(lesson)}</p>` : ""}
+        ${c.src ? `<p class="src">সূত্র: ${esc(c.src)}</p>` : ""}
+        ${c.place && byId(c.place) ? `<button class="link-btn" data-show="${c.place}">ম্যাপে জায়গাটি দেখুন</button>` : ""}
+      </div></details></li>`;
+    });
+    html += "</ol>";
+  });
+  $("#seerahBody").innerHTML = html;
+  $("#seerahBody").addEventListener("toggle", e => { const s = e.target.querySelector && e.target.querySelector(".more"); if (s) s.textContent = e.target.open ? "বন্ধ করতে চাপুন" : "পড়তে চাপুন"; }, true);
+  $("#seerahToc").addEventListener("click", e => { const b = e.target.closest("[data-era]"); if (b) document.getElementById("era" + b.dataset.era).scrollIntoView({ behavior:"smooth" }); });
+}
+
+/* ============ Duas & Sunnah ============ */
+let duasDone = false;
+function renderDuas(){
+  if (duasDone) return; duasDone = true;
+  const D = window.DUAS || [];
+  const groups = []; D.forEach(d => { if (!groups.includes(d.g)) groups.push(d.g); });
+  $("#duaToc").innerHTML = groups.map((g, i) => `<button data-dg="${i}">${esc(g)}</button>`).join("");
+  let html = "";
+  groups.forEach((g, i) => {
+    html += `<h3 class="group-title" id="dg${i}">${esc(g)}</h3>`;
+    D.filter(d => d.g === g).forEach(d => {
+      html += `<article class="dua"><h3>${esc(d.t)}</h3><div class="ref">${esc(d.ref)}${d.times ? ` <span class="times">${esc(d.times)}</span>` : ""}</div>
+      ${d.note ? `<p class="lead">${esc(d.note)}</p>` : ""}
+      <div class="ar full">${esc((d.w || []).map(x => x[0]).join(" "))}</div>
+      <div class="wbw">${(d.w || []).map(([a, m]) => `<div class="w"><div class="wa">${esc(a)}</div><div class="wb">${esc(m)}</div></div>`).join("")}</div>
+      <p><span class="lbl">উচ্চারণ: </span><span class="pron">${esc(d.pron)}</span></p>
+      <p class="mean"><span class="lbl">অর্থ: </span>${esc(d.mean)}</p></article>`;
+    });
+  });
+  $("#duaList").innerHTML = html || '<p class="loading">দোয়াগুলো পাওয়া যায়নি।</p>';
+  $("#duaToc").addEventListener("click", e => { const b = e.target.closest("[data-dg]"); if (b) document.getElementById("dg" + b.dataset.dg).scrollIntoView({ behavior:"smooth" }); });
+
+  const SN = window.SUNNAH || [];
+  $("#sunnahToc").innerHTML = SN.map(([g], i) => `<button data-sg="${i}">${esc(g)}</button>`).join("");
+  $("#sunnahList").innerHTML = SN.map(([g, items], i) => `<h3 class="group-title" id="sg${i}">${esc(g)}</h3>` +
+    items.map(([t, b, r]) => `<div class="sunnah"><h3>${esc(t)}</h3><p>${esc(b)}</p><div class="ref">${esc(r)}</div></div>`).join("")).join("");
+  $("#sunnahToc").addEventListener("click", e => { const b = e.target.closest("[data-sg]"); if (b) document.getElementById("sg" + b.dataset.sg).scrollIntoView({ behavior:"smooth" }); });
+}
+$("#tabDua").addEventListener("click", () => { $("#duaPane").hidden = false; $("#sunnahPane").hidden = true; $("#tabDua").setAttribute("aria-pressed", "true"); $("#tabSunnah").setAttribute("aria-pressed", "false"); });
+$("#tabSunnah").addEventListener("click", () => { $("#duaPane").hidden = true; $("#sunnahPane").hidden = false; $("#tabDua").setAttribute("aria-pressed", "false"); $("#tabSunnah").setAttribute("aria-pressed", "true"); });
+
+/* ============ start ============ */
+renderHome(); tick(); setInterval(tick, 20000); setBandH();
+const startView = (location.hash || "#home").slice(1);
+show(["home","map","quran","seerah","sunnah"].includes(startView) ? startView : "home");
+if (!IS_APP && "serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
