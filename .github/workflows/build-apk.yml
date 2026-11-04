@@ -1,0 +1,120 @@
+name: Build offline data and Android app
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - "data/**"
+      - "vendor/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: haram-guide-build
+  cancel-in-progress: false
+
+jobs:
+  data:
+    name: Offline data (Quran, fonts, map)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build offline data
+        run: |
+          HASH=$(cat build-data.mjs translit.js | sha1sum | cut -c1-12)
+          if [ -f data/version.txt ] && [ "$(cat data/version.txt)" = "$HASH" ] && [ -f data/quran/114.json ] && [ -f vendor/leaflet/leaflet.js ]; then
+            echo "Offline data is already up to date."
+            exit 0
+          fi
+          mkdir -p .build
+          echo '{"name":"hg-build","version":"1.0.0","private":true}' > .build/package.json
+          npm install --prefix .build --no-audit --no-fund quran-cloud@1.0.0 leaflet@1.9.4 @fontsource/anek-bangla@5.3.0 @fontsource/noto-serif-bengali@5.3.0 @fontsource/amiri-quran@5.3.0
+          node build-data.mjs
+          echo "$HASH" > data/version.txt
+
+      - name: Save offline data in the repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data vendor
+          if git diff --cached --quiet; then
+            echo "Nothing new to save."
+          else
+            git commit -m "Update offline data"
+            git push
+            # refresh the website (GitHub Pages) so it gets the new files
+            curl -s -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/pages/builds" || true
+          fi
+
+  apk:
+    name: Android app
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Prepare app files
+        run: |
+          mkdir -p app/www
+          cp -r index.html sw.js manifest.webmanifest icon-192.png icon-512.png translit.js hateem.js places.js seerah-1.js seerah-2.js seerah-3.js duas.js sunnah.js data vendor app/www/
+          cd app
+          echo '{"name":"haram-guide","version":"1.0.0","private":true}' > package.json
+          echo '{"appId":"com.haramguide.app","appName":"Haram Guide","webDir":"www"}' > capacitor.config.json
+          npm install --no-audit --no-fund @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          npx cap add android
+
+      - name: Location permission and icon
+        run: |
+          cd app
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's#</manifest>#    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />\n    <uses-feature android:name="android.hardware.location.gps" android:required="false" />\n</manifest>#' "$M"
+          grep -q ACCESS_FINE_LOCATION "$M" && echo "Location permission added"
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
+          for d in android/app/src/main/res/mipmap-*; do
+            cp ../icon-512.png "$d/ic_launcher.png"
+            cp ../icon-512.png "$d/ic_launcher_round.png"
+            cp ../icon-512.png "$d/ic_launcher_foreground.png"
+          done
+
+      - name: Build APK
+        run: |
+          cd app
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk ../../HaramGuide.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HaramGuide-apk
+          path: HaramGuide.apk
+
+      - name: Publish APK to Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-${{ github.run_number }}
+          name: Haram Guide ${{ github.run_number }}
+          files: HaramGuide.apk
