@@ -116,7 +116,14 @@ p{margin:.5em 0}
 .map-filters button[aria-pressed="true"]{background:var(--kiswa);color:var(--gold)}
 .map-tools{position:absolute;right:10px;bottom:16px;z-index:500;display:flex;flex-direction:column;gap:8px}
 .map-tools button{min-width:56px;height:48px;padding:0 8px;border-radius:14px;border:0;background:var(--surface);color:var(--ink);box-shadow:0 1px 5px rgba(0,0,0,.3);display:grid;place-items:center;font-weight:700;font-size:13px;line-height:1.1}
-.sheet{position:absolute;left:10px;right:86px;bottom:16px;z-index:600;background:var(--surface);border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,.35);padding:14px 16px;max-height:55%;overflow:auto;display:none}
+.sheet{position:absolute;left:10px;right:86px;bottom:16px;z-index:600;background:var(--surface);border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,.35);padding:14px 16px;max-height:68%;overflow:auto;display:none}
+@media (min-width:900px){.sheet{right:auto;width:440px;top:64px;bottom:16px;max-height:none}}
+.sheet h4{margin:12px 0 2px;font-size:15px;color:var(--green)}
+.sheet p{margin:.3em 0}
+.sheet ul{margin:4px 0;padding-left:20px}
+.ph{margin:10px 0 4px}
+.ph img{width:100%;max-height:220px;object-fit:cover;border-radius:12px;background:var(--line);display:block}
+.ph figcaption{font-size:12px;color:var(--muted);margin-top:3px}
 .sheet.show{display:block}
 .sheet .kind{font-size:13px;color:var(--muted)}
 .sheet .x{position:absolute;top:6px;right:6px;border:0;background:none;width:40px;height:40px;font-size:24px;color:var(--muted)}
@@ -144,6 +151,28 @@ p{margin:.5em 0}
 .pin.target{box-shadow:0 0 0 7px rgba(201,162,74,.65)}
 .me-dot{width:18px;height:18px;border-radius:50%;background:#1E88E5;border:3px solid #fff;box-shadow:0 0 0 6px rgba(30,136,229,.25)}
 .leaflet-container{font-family:var(--ui)}
+
+/* tawaf */
+.tw-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tw-level{font-size:26px;font-weight:800;color:#fff;border-radius:12px;padding:4px 16px;background:#999}
+.tw-time{font-size:18px;font-weight:700;color:var(--muted)}
+.tw-bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin:12px 0 4px;max-width:520px}
+.tw-bar div{height:100%;width:0;transition:width .6s}
+.tw3d{position:relative;height:min(62vh,560px);border-radius:16px;overflow:hidden;background:#0d1726;margin:10px 0;border:1px solid var(--line)}
+.tw3d canvas{display:block}
+.tw-hint{position:absolute;left:12px;bottom:10px;z-index:2;font-size:13px;color:#fff;background:rgba(0,0,0,.45);padding:3px 10px;border-radius:8px;pointer-events:none}
+.tw-label{position:absolute;left:0;top:0;z-index:2;font-size:13px;font-weight:700;color:#000;background:rgba(255,255,255,.85);padding:1px 8px;border-radius:6px;pointer-events:none;white-space:nowrap}
+.tw-sl{display:flex;align-items:center;gap:12px;font-weight:600;max-width:620px}
+.tw-sl input{flex:1;accent-color:var(--green);height:32px}
+.tw-chart{color:var(--ink)}
+.tw-cv{position:relative}
+.tw-chart svg{width:100%;height:170px;display:block}
+.tw-tag{position:absolute;transform:translateX(-50%);font-size:12px;font-weight:700;color:#0B6B50;background:var(--marble);padding:0 4px;border-radius:4px;white-space:nowrap}
+.tw-pr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:520px}
+.tw-pr div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.tw-pr span{display:block;font-size:13px;color:var(--muted)}
+.tw-pr b{font-size:16px}
+.tabs button{font-size:12px}
 
 /* quran */
 .search{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;margin:14px 0 8px}
@@ -315,7 +344,8 @@ p{margin:.5em 0}
       <button class="x" id="sheetX" aria-label="বন্ধ করুন">×</button>
       <div class="kind" id="sKind"></div>
       <h3 id="sTitle"></h3>
-      <p id="sText"></p>
+      <figure class="ph" id="sPhoto" hidden><img id="sImg" alt=""><figcaption id="sCredit"></figcaption></figure>
+      <div id="sText"></div>
       <div class="btn-row"><button class="btn gold" id="sGo">এখানে নিয়ে চলো</button></div>
     </div>
     <div class="toast" id="toast"></div>
@@ -325,6 +355,39 @@ p{margin:.5em 0}
       <button id="btnLayer">স্যাটেলাইট</button>
     </div>
   </div>
+</section>
+
+<!-- TAWAF -->
+<section class="view" id="v-tawaf" aria-label="তাওয়াফের ভিড়">
+  <h2>তাওয়াফে এখন ভিড় কেমন</h2>
+  <div class="tw-top">
+    <span class="tw-level" id="twLevel">--</span>
+    <span class="tw-time" id="twTime">--</span>
+    <button class="btn small gold" id="twLive" hidden>এখনকার অবস্থা দেখুন</button>
+  </div>
+  <div class="tw-bar"><div id="twPct"></div></div>
+  <p id="twNote" class="lead"></p>
+  <div class="tw3d" id="tw3d"><div class="tw-hint">আঙুল দিয়ে ঘুরিয়ে দেখুন, দুই আঙুলে কাছে-দূরে</div></div>
+  <label class="tw-sl"><span>সময় বদলে দেখুন</span><input type="range" id="twSlider" min="0" max="1439" step="5" value="0"></label>
+  <div class="two">
+    <div>
+      <h3 style="margin-top:18px">পরের কম ভিড়ের সময়</h3>
+      <ul class="plain" id="twNext"></ul>
+      <h3 style="margin-top:18px">সারাদিনের আনুমানিক ভিড়</h3>
+      <div class="tw-chart" id="twChart"></div>
+    </div>
+    <div>
+      <h3 style="margin-top:18px">আজকের নামাজের সময় (মক্কা)</h3>
+      <div class="tw-pr" id="twPrayers"></div>
+      <h3 style="margin-top:18px">সরকারি লাইভ তথ্য</h3>
+      <p class="src" id="twOffline" hidden>এই অংশের জন্য ইন্টারনেট লাগবে।</p>
+      <div class="btn-row">
+        <a class="btn" href="https://alharamain.gov.sa/public/?module=module_794625" target="_blank" rel="noopener">মাতাফের লাইভ ভিড় (সরকারি)</a>
+        <a class="btn ghost" href="https://www.youtube.com/results?search_query=makkah+live&sp=EgJAAQ%253D%253D" target="_blank" rel="noopener">কাবার লাইভ ভিডিও</a>
+      </div>
+    </div>
+  </div>
+  <div class="note">৩ডি ছবির ভিড় আনুমানিক। এটা সৌদি হজ মন্ত্রণালয়ের ঘোষিত বেশি ও কম ভিড়ের সময়, আজকের নামাজের ওয়াক্ত, শুক্রবার, রমজান আর হজের মৌসুম ধরে প্রতি মিনিটে হিসাব হয়। মাতাফের সেন্সরের আসল লাইভ সংখ্যা সৌদি কর্তৃপক্ষ শুধু তাদের ওয়েবসাইট আর নুসুক অ্যাপে দেখায়, অন্য অ্যাপকে দেয় না। তাই যাওয়ার আগে ওপরের সরকারি লাইভ পাতাটা একবার দেখে নিন।</div>
 </section>
 
 <!-- QURAN -->
@@ -383,6 +446,7 @@ p{margin:.5em 0}
 <nav class="tabs" aria-label="প্রধান মেনু">
   <button data-v="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="15"/><path d="M4 10h16"/><path d="M14 21v-5a2 2 0 0 1 4 0v5"/></svg>হাতিম</button>
   <button data-v="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>ম্যাপ</button>
+  <button data-v="tawaf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="6" height="6"/><path d="M12 3a9 9 0 1 1-8.5 6"/><path d="M3 4v5h5"/></svg>তাওয়াফ</button>
   <button data-v="quran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z"/><path d="M12 6v14"/></svg>কুরআন</button>
   <button data-v="seerah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V8l8-5 8 5v12"/><path d="M9 20v-6h6v6"/></svg>সীরাত</button>
   <button data-v="sunnah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3v8a5 5 0 0 0 10 0V3"/><path d="M12 16v5"/></svg>দোয়া</button>
@@ -390,6 +454,8 @@ p{margin:.5em 0}
 
 <script src="vendor/leaflet/leaflet.js"></script>
 <script>window.L || document.write('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');</script>
+<script src="vendor/three/three.min.js"></script>
+<script>window.THREE || document.write('<script src="https://unpkg.com/three@0.149.0/build/three.min.js"><\/script>');</script>
 <script src="translit.js"></script>
 <script src="hateem.js"></script>
 <script src="places.js"></script>
@@ -398,6 +464,7 @@ p{margin:.5em 0}
 <script src="seerah-3.js"></script>
 <script src="duas.js"></script>
 <script src="sunnah.js"></script>
+<script src="tawaf.js"></script>
 <script>
 "use strict";
 /* ============ helpers ============ */
@@ -603,14 +670,38 @@ function openSheet(id){
   selected = p;
   $("#sKind").textContent = KIND_BN[p.kind];
   $("#sTitle").innerHTML = esc(p.name) + (p.approx ? '<span class="approx">আনুমানিক</span>' : "");
-  $("#sText").textContent = p.text;
+  $("#sText").innerHTML = p.about
+    ? `<h4>এটা কী</h4><p>${esc(p.about)}</p>${p.why ? `<h4>কেন যাবেন</h4><p>${esc(p.why)}</p>` : ""}${p.tips && p.tips.length ? `<h4>টিপস</h4><ul>${p.tips.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}${p.via ? `<p class="src">যেতে হবে ${esc((byId(p.via) || {}).name || "")} দিয়ে।</p>` : ""}`
+    : `<p>${esc(p.text)}</p>`;
+  $("#sPhoto").hidden = true;
+  showPhoto(p);
+  $("#sheet").scrollTop = 0;
   $("#sheet").classList.add("show");
   if (map) map.panTo([p.lat, p.lng]);
+}
+let photoIdx = null;
+async function showPhoto(p){
+  if (!p.wiki) return;
+  if (photoIdx === null) photoIdx = await fetch("data/photos.json").then(r => r.ok ? r.json() : {}).catch(() => ({}));
+  let src = null, credit = "";
+  const loc = photoIdx[p.id];
+  if (loc) { src = loc.src; credit = "ছবি: " + (loc.credit ? loc.credit + ", " : "") + loc.license + " (উইকিমিডিয়া কমন্স)"; }
+  else if (navigator.onLine) {
+    try {
+      const j = await (await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(p.wiki))).json();
+      if (j.thumbnail) { src = (j.originalimage && j.originalimage.width <= 1200 ? j.originalimage : j.thumbnail).source; credit = "ছবি: উইকিপিডিয়া / উইকিমিডিয়া কমন্স"; }
+    } catch(e) {}
+  }
+  if (!src || selected !== p) return;
+  const img = $("#sImg");
+  img.onload = () => { if (selected === p) $("#sPhoto").hidden = false; };
+  img.onerror = () => { $("#sPhoto").hidden = true; };
+  img.alt = p.name; img.src = src; $("#sCredit").textContent = credit;
 }
 $("#sheetX").addEventListener("click", () => $("#sheet").classList.remove("show"));
 $("#sGo").addEventListener("click", () => selected && startNav(selected.id));
 
-/* --- location & straight-line walking guide (works without internet) --- */
+/* --- location --- */
 let watchId = null, oriOn = false;
 function startWatch(){
   if (watchId !== null) return;
@@ -656,13 +747,120 @@ function bearing(a, b, c, d){
 const DIRS = ["উত্তর", "উত্তর-পূর্ব", "পূর্ব", "দক্ষিণ-পূর্ব", "দক্ষিণ", "দক্ষিণ-পশ্চিম", "পশ্চিম", "উত্তর-পশ্চিম"];
 function fmtDist(m){ return m >= 1000 ? `${bn((m/1000).toFixed(1))} কিমি` : `${bn(Math.round(m))} মিটার`; }
 
+/* --- walking network: shortest path on streets, alleys, footpaths and plazas (works without internet) --- */
+let walkG = null, walkState = "none", walkP = null;
+function loadWalk(){
+  if (walkState !== "none") return walkP;
+  walkState = "loading";
+  walkP = fetch("data/walk.json").then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => {
+    const n = d.n, N = n.length / 2, la = new Float64Array(N), lo = new Float64Array(N);
+    for (let i = 0; i < N; i++) { la[i] = (n[2*i] + 2140000) / 1e5; lo[i] = (n[2*i+1] + 3980000) / 1e5; }
+    const deg = new Uint32Array(N + 1), e = d.e;
+    for (let i = 0; i < e.length; i += 2) { deg[e[i]]++; deg[e[i+1]]++; }
+    const off = new Uint32Array(N + 1); for (let i = 0; i < N; i++) off[i+1] = off[i] + deg[i];
+    const fill = off.slice(0, N), nb = new Uint32Array(off[N]);
+    for (let i = 0; i < e.length; i += 2) { nb[fill[e[i]]++] = e[i+1]; nb[fill[e[i+1]]++] = e[i]; }
+    walkG = { la, lo, off, nb, N }; walkState = "ready"; return walkG;
+  }).catch(() => { walkState = "fail"; return null; });
+  return walkP;
+}
+const KX = 111320 * Math.cos(21.42 * Math.PI / 180), KY = 110540;
+const md = (a, b, c, d) => Math.hypot((d - b) * KX, (c - a) * KY);
+function nearestNode(g, lat, lng){
+  let best = -1, bd = Infinity;
+  for (let i = 0; i < g.N; i++) { const dy = (g.la[i] - lat) * KY, dx = (g.lo[i] - lng) * KX, d = dx*dx + dy*dy; if (d < bd) { bd = d; best = i; } }
+  return { i:best, d:Math.sqrt(bd) };
+}
+function astar(g, s, t){
+  const N = g.N, gs = new Float64Array(N).fill(Infinity), prev = new Int32Array(N).fill(-1), closed = new Uint8Array(N);
+  const h = i => md(g.la[i], g.lo[i], g.la[t], g.lo[t]);
+  const heap = [[h(s), s]]; gs[s] = 0;
+  const push = x => { heap.push(x); let k = heap.length - 1; while (k > 0) { const p = (k - 1) >> 1; if (heap[p][0] <= heap[k][0]) break; [heap[p], heap[k]] = [heap[k], heap[p]]; k = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let k = 0; for (;;) { const l = 2*k+1, r = l+1; let m = k; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === k) break; [heap[m], heap[k]] = [heap[k], heap[m]]; k = m; } } return top; };
+  while (heap.length) {
+    const [, u] = pop();
+    if (closed[u]) continue; closed[u] = 1;
+    if (u === t) break;
+    for (let k = g.off[u]; k < g.off[u+1]; k++) {
+      const v = g.nb[k]; if (closed[v]) continue;
+      const ng = gs[u] + md(g.la[u], g.lo[u], g.la[v], g.lo[v]);
+      if (ng < gs[v]) { gs[v] = ng; prev[v] = u; push([ng + h(v), v]); }
+    }
+  }
+  if (!closed[t]) return null;
+  const path = []; for (let u = t; u !== -1; u = prev[u]) path.push([g.la[u], g.lo[u]]);
+  return path.reverse();
+}
+function decode6(str){
+  let i = 0, lat = 0, lng = 0; const out = [];
+  while (i < str.length) {
+    let b, sh = 0, r = 0; do { b = str.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32); lat += (r & 1) ? ~(r >> 1) : (r >> 1);
+    sh = 0; r = 0; do { b = str.charCodeAt(i++) - 63; r |= (b & 31) << sh; sh += 5; } while (b >= 32); lng += (r & 1) ? ~(r >> 1) : (r >> 1);
+    out.push([lat / 1e6, lng / 1e6]);
+  }
+  return out;
+}
+async function findRoute(a, b){
+  const g = await loadWalk();
+  if (g) {
+    const s = nearestNode(g, a[0], a[1]), t = nearestNode(g, b[0], b[1]);
+    if (s.d < 400 && t.d < 400) { const p = astar(g, s.i, t.i); if (p) return { pts:p, src:"offline" }; }
+  }
+  if (navigator.onLine) {
+    try {
+      const q = { locations:[{ lat:a[0], lon:a[1] }, { lat:b[0], lon:b[1] }], costing:"pedestrian" };
+      const j = await (await fetch("https://valhalla1.openstreetmap.de/route?json=" + encodeURIComponent(JSON.stringify(q)))).json();
+      const sh = j.trip && j.trip.legs && j.trip.legs[0] && j.trip.legs[0].shape;
+      if (sh) return { pts:decode6(sh), src:"online" };
+    } catch(e) {}
+  }
+  return null;
+}
+function routeGeom(pts){
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i-1] + md(pts[i-1][0], pts[i-1][1], pts[i][0], pts[i][1]));
+  return cum;
+}
+// where am I on the route: distance along it and distance off it
+function locateOnRoute(r, lat, lng){
+  let best = { off:Infinity, s:0 };
+  for (let i = 1; i < r.pts.length; i++) {
+    const [ay, ax] = r.pts[i-1], [by, bx] = r.pts[i];
+    const px = (lng - ax) * KX, py = (lat - ay) * KY, vx = (bx - ax) * KX, vy = (by - ay) * KY;
+    const L2 = vx*vx + vy*vy, t = L2 ? Math.max(0, Math.min(1, (px*vx + py*vy) / L2)) : 0;
+    const d = Math.hypot(px - t*vx, py - t*vy);
+    if (d < best.off) best = { off:d, s:r.cum[i-1] + t * Math.sqrt(L2) };
+  }
+  return best;
+}
+function pointAt(r, s){
+  for (let i = 1; i < r.pts.length; i++) if (r.cum[i] >= s) {
+    const f = (s - r.cum[i-1]) / ((r.cum[i] - r.cum[i-1]) || 1);
+    return [r.pts[i-1][0] + f * (r.pts[i][0] - r.pts[i-1][0]), r.pts[i-1][1] + f * (r.pts[i][1] - r.pts[i-1][1])];
+  }
+  return r.pts[r.pts.length - 1];
+}
+function nextTurn(r, s){
+  for (let k = 1; k < r.pts.length - 1; k++) {
+    if (r.cum[k] < s + 8) continue;
+    if (r.cum[k] > s + 160) break;
+    const b1 = bearing(r.pts[k-1][0], r.pts[k-1][1], r.pts[k][0], r.pts[k][1]);
+    let j = k + 1; while (j < r.pts.length - 1 && r.cum[j] - r.cum[k] < 6) j++;
+    const b2 = bearing(r.pts[k][0], r.pts[k][1], r.pts[j][0], r.pts[j][1]);
+    const dlt = ((b2 - b1 + 540) % 360) - 180;
+    if (Math.abs(dlt) > 40) return { at:r.cum[k] - s, dir: dlt > 0 ? "ডানে" : "বাঁয়ে", sharp: Math.abs(dlt) > 120 };
+  }
+  return null;
+}
+
 function startNav(id){
   const p = byId(id); if (!p) return;
   show("map");
   setTimeout(() => {
     initMap();
     stopNav(true);
-    nav = { p, line:null, car:null, arrived:false };
+    const via = p.via ? byId(p.via) : null;
+    nav = { p, via, goal: via || p, route:null, routing:false, lastRoute:0, layers:[], arrived:false, fitted:false };
     $("#sheet").classList.remove("show");
     $("#navPanel").classList.add("show");
     $("#navTo").textContent = p.name;
@@ -670,15 +868,16 @@ function startNav(id){
     $("#navHint").textContent = "আপনার অবস্থান খোঁজা হচ্ছে…";
     $("#navCar").hidden = true;
     if (map) {
-      markers[p.id].addTo(map);
+      markers[p.id].addTo(map); if (via) markers[via.id].addTo(map);
       map.setView([p.lat, p.lng], p.kind === "outside" ? 14 : 18);
       setTimeout(() => { const el = document.querySelector(`[data-pin="${p.id}"]`); if (el) el.classList.add("target"); }, 50);
     }
-    startWatch(); updateNav();
+    loadWalk(); startWatch(); updateNav();
   }, 60);
 }
+function clearNavLayers(){ if (nav) { nav.layers.forEach(l => l.remove()); nav.layers = []; } }
 function stopNav(silent){
-  if (nav) { if (nav.line) nav.line.remove(); if (nav.car) nav.car.remove(); }
+  if (nav) { clearNavLayers(); if (nav.car) nav.car.remove(); }
   $$(".pin.target").forEach(x => x.classList.remove("target"));
   nav = null;
   if (!silent) $("#navPanel").classList.remove("show");
@@ -686,38 +885,88 @@ function stopNav(silent){
 $("#navStop").addEventListener("click", () => stopNav(false));
 $("#navCar").addEventListener("click", () => nav && carRoute());
 
-function updateNav(){
-  if (!nav || me.lat === null) return;
-  const p = nav.p;
-  const d = dist(me.lat, me.lng, p.lat, p.lng);
-  const brg = bearing(me.lat, me.lng, p.lat, p.lng);
-  if (map) {
-    const ll = [[me.lat, me.lng], [p.lat, p.lng]];
-    if (nav.line) nav.line.setLatLngs(ll);
-    else {
-      nav.line = L.polyline(ll, { color:"#C9A24A", weight:6, opacity:.95, dashArray:"10 10", interactive:false }).addTo(map);
-      map.fitBounds(L.latLngBounds(ll), { padding:[80, 80], maxZoom:18 });
-    }
+function drawRoute(){
+  if (!map || !nav) return;
+  clearNavLayers();
+  const add = l => { l.addTo(map); nav.layers.push(l); };
+  const r = nav.route, goal = nav.goal;
+  if (r) {
+    add(L.polyline(r.pts, { color:"#000", weight:10, opacity:.55, interactive:false }));
+    add(L.polyline(r.pts, { color:"#C9A24A", weight:6, opacity:1, interactive:false }));
+    add(L.polyline([[me.lat, me.lng], r.pts[0]], { color:"#C9A24A", weight:4, dashArray:"4 8", interactive:false }));
+    add(L.polyline([r.pts[r.pts.length-1], [goal.lat, goal.lng]], { color:"#C9A24A", weight:4, dashArray:"4 8", interactive:false }));
+  } else {
+    add(L.polyline([[me.lat, me.lng], [goal.lat, goal.lng]], { color:"#C9A24A", weight:5, dashArray:"10 10", interactive:false }));
   }
-  if (d < 25) {
+  if (nav.via) add(L.polyline([[nav.via.lat, nav.via.lng], [nav.p.lat, nav.p.lng]], { color:"#0B6B50", weight:4, dashArray:"2 8", interactive:false }));
+  if (!nav.fitted) {
+    nav.fitted = true;
+    const pts = r ? r.pts.concat([[me.lat, me.lng], [nav.p.lat, nav.p.lng]]) : [[me.lat, me.lng], [nav.p.lat, nav.p.lng]];
+    map.fitBounds(L.latLngBounds(pts), { padding:[90, 60], maxZoom:18 });
+  }
+}
+async function reroute(){
+  if (!nav || nav.routing) return;
+  nav.routing = true; nav.lastRoute = Date.now();
+  const goal = nav.goal, here = [me.lat, me.lng];
+  const r = await findRoute(here, [goal.lat, goal.lng]);
+  if (!nav || nav.goal !== goal) return;
+  nav.routing = false;
+  if (r && r.pts.length > 1) { r.cum = routeGeom(r.pts); nav.route = r; } else nav.route = null;
+  nav.from = here;
+  drawRoute(); updateNav(true);
+}
+function updateNav(noRoute){
+  if (!nav || me.lat === null) return;
+  const p = nav.p, goal = nav.goal;
+  const dGoal = dist(me.lat, me.lng, goal.lat, goal.lng);
+  const dFinal = dist(me.lat, me.lng, p.lat, p.lng);
+  if (dFinal < 25 || (!nav.via && dGoal < 25)) {
+    clearNavLayers();
     $("#navDist").textContent = "পৌঁছে গেছেন";
     $("#navHint").textContent = "আপনি এখন " + p.name + "-এর কাছে।";
     if (!nav.arrived && navigator.vibrate) navigator.vibrate([200, 100, 200]);
-    nav.arrived = true;
-    return;
+    nav.arrived = true; return;
   }
   nav.arrived = false;
-  const walkMin = Math.max(1, Math.round(d * 1.2 / 75));
-  $("#navDist").textContent = fmtDist(d);
-  $("#navTo").textContent = `${p.name}। হেঁটে প্রায় ${bn(walkMin)} মিনিট`;
-  const rel = me.heading === null ? brg : brg - me.heading;
-  $("#navArrow").style.transform = `rotate(${rel}deg)`;
-  let hint = me.heading === null
-    ? `${DIRS[Math.round(brg / 45) % 8]} দিকে সোজা হাঁটুন (তীরের মাথা উত্তর ধরে)।`
-    : "তীর যেদিকে দেখাচ্ছে, সেদিকে সোজা হাঁটুন।";
-  if (me.acc > 60) hint = "মসজিদের ভেতরে জিপিএস দুর্বল। গেট নম্বরের সাইন দেখে চলুন।";
+  if (nav.via && dGoal < 25) {
+    $("#navDist").textContent = fmtDist(dFinal);
+    $("#navTo").textContent = p.name;
+    $("#navHint").textContent = `${nav.via.name} দিয়ে ভেতরে ঢুকে সামনে এগিয়ে যান। মসজিদের ভেতরে সবুজ বিন্দু-রেখা দিক দেখাচ্ছে।`;
+    $("#navArrow").style.transform = `rotate(${bearing(me.lat, me.lng, p.lat, p.lng) - (me.heading || 0)}deg)`;
+    return;
+  }
+  // route on streets: make one at start, again when you leave it or every minute
+  let loc = null;
+  if (nav.route) loc = locateOnRoute(nav.route, me.lat, me.lng);
+  if (!noRoute && !nav.routing && (!nav.route || (loc && loc.off > 35) || Date.now() - nav.lastRoute > 60000)) {
+    if (!nav.route && !nav.lastRoute) { $("#navHint").textContent = "হাঁটার রাস্তা খোঁজা হচ্ছে…"; drawRoute(); }
+    reroute();
+  }
+  let remain, aim, hint;
+  if (nav.route && loc) {
+    const r = nav.route;
+    const total = r.cum[r.cum.length - 1];
+    remain = Math.max(0, total - loc.s) + md(r.pts[r.pts.length-1][0], r.pts[r.pts.length-1][1], goal.lat, goal.lng) + (loc.off > 15 ? loc.off : 0);
+    aim = loc.off > 20 ? r.pts[0] : pointAt(r, loc.s + 20);
+    const turn = nextTurn(r, loc.s);
+    hint = loc.off > 20 ? "সোনালি রাস্তার দিকে যান, তারপর রাস্তা ধরে হাঁটুন।"
+      : turn ? `${turn.at < 12 ? "এখনই" : bn(Math.round(turn.at / 5) * 5) + " মিটার পর"} ${turn.sharp ? "পুরো ঘুরে " : ""}${turn.dir} ঘুরুন।`
+      : "সোনালি রাস্তা ধরে সোজা হাঁটুন।";
+  } else {
+    remain = dGoal; aim = [goal.lat, goal.lng];
+    hint = navigator.onLine || walkState === "ready" ? "হাঁটার রাস্তা পাওয়া যায়নি। সোজা দিক দেখানো হচ্ছে, রাস্তা দেখে চলুন।" : "ইন্টারনেট নেই, রাস্তার তথ্যও নেই। সোজা দিক দেখানো হচ্ছে।";
+  }
+  if (nav.via) remain += md(goal.lat, goal.lng, p.lat, p.lng);
+  const brg = bearing(me.lat, me.lng, aim[0], aim[1]);
+  $("#navArrow").style.transform = `rotate(${me.heading === null ? brg : brg - me.heading}deg)`;
+  $("#navDist").textContent = fmtDist(remain);
+  $("#navTo").textContent = `${p.name}${nav.via ? ` (${nav.via.name} দিয়ে)` : ""}। হেঁটে প্রায় ${bn(Math.max(1, Math.round(remain / 70)))} মিনিট`;
+  if (me.heading === null && !(nav.route && loc && loc.off <= 20)) hint += ` দিক: ${DIRS[Math.round(brg / 45) % 8]}।`;
+  if (me.acc > 60) hint = "জিপিএস দুর্বল (উঁচু ভবন বা মসজিদের ভেতর)। গেট নম্বরের সাইন দেখে চলুন। " + hint;
   $("#navHint").textContent = hint;
-  $("#navCar").hidden = !(d > 2500 && navigator.onLine);
+  $("#navCar").hidden = !(dFinal > 2500 && navigator.onLine);
+  if (nav.layers.length && nav.route && map) { const l = nav.layers[2]; if (l) l.setLatLngs([[me.lat, me.lng], loc && loc.off > 15 ? nav.route.pts[0] : pointAt(nav.route, loc ? loc.s : 0)]); }
 }
 async function carRoute(){
   const p = nav.p;
@@ -748,6 +997,7 @@ function show(v){
   window.scrollTo(0, 0);
   setBandH();
   if (v === "map") setTimeout(() => { initMap(); map && map.invalidateSize(); }, 30);
+  if (window.TawafView) { if (v === "tawaf") TawafView.start(); else TawafView.stop(); }
   if (v === "quran" && !$("#surahList").children.length) renderSurahList();
   if (v === "seerah") renderSeerah();
   if (v === "sunnah") renderDuas();
@@ -945,7 +1195,8 @@ $("#tabSunnah").addEventListener("click", () => { $("#duaPane").hidden = true; $
 /* ============ start ============ */
 renderHome(); tick(); setInterval(tick, 20000); setBandH();
 const startView = (location.hash || "#home").slice(1);
-show(["home","map","quran","seerah","sunnah"].includes(startView) ? startView : "home");
+if (window.TawafView) TawafView.init();
+show(["home","map","tawaf","quran","seerah","sunnah"].includes(startView) ? startView : "home");
 if (!IS_APP && "serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
 </body>
