@@ -29,16 +29,10 @@ jobs:
 
       - name: Build offline data
         run: |
-          HASH=$(cat build-data.mjs translit.js | sha1sum | cut -c1-12)
-          if [ -f data/version.txt ] && [ "$(cat data/version.txt)" = "$HASH" ] && [ -f data/quran/114.json ] && [ -f vendor/leaflet/leaflet.js ]; then
-            echo "Offline data is already up to date."
-            exit 0
-          fi
           mkdir -p .build
           echo '{"name":"hg-build","version":"1.0.0","private":true}' > .build/package.json
-          npm install --prefix .build --no-audit --no-fund quran-cloud@1.0.0 leaflet@1.9.4 @fontsource/anek-bangla@5.3.0 @fontsource/noto-serif-bengali@5.3.0 @fontsource/amiri-quran@5.3.0
+          npm install --prefix .build --no-audit --no-fund quran-cloud@1.0.0 leaflet@1.9.4 three@0.149.0 @fontsource/anek-bangla@5.3.0 @fontsource/noto-serif-bengali@5.3.0 @fontsource/amiri-quran@5.3.0
           node build-data.mjs
-          echo "$HASH" > data/version.txt
 
       - name: Save offline data in the repository
         run: |
@@ -73,12 +67,10 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
-
       - name: Prepare app files
         run: |
           mkdir -p app/www
-          cp -r index.html sw.js manifest.webmanifest icon-192.png icon-512.png translit.js hateem.js places.js seerah-1.js seerah-2.js seerah-3.js duas.js sunnah.js data vendor app/www/
+          cp -r index.html sw.js manifest.webmanifest icon-192.png icon-512.png translit.js tawaf.js hateem.js places.js seerah-1.js seerah-2.js seerah-3.js duas.js sunnah.js data vendor app/www/
           cd app
           echo '{"name":"haram-guide","version":"1.0.0","private":true}' > package.json
           echo '{"appId":"com.haramguide.app","appName":"Haram Guide","webDir":"www"}' > capacitor.config.json
@@ -100,6 +92,10 @@ jobs:
 
       - name: Build APK
         run: |
+          # the GitHub machine already has the Android SDK installed
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          echo "sdk.dir=$ANDROID_HOME" > app/android/local.properties
           cd app
           npx cap sync android
           cd android
