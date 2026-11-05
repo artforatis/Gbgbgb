@@ -165,6 +165,13 @@ p{margin:.5em 0}
 .tw-sl{display:flex;align-items:center;gap:12px;font-weight:600;max-width:620px}
 .tw-sl input{flex:1;accent-color:var(--green);height:32px}
 .tw-chart{color:var(--ink)}
+.tw-flash{background:var(--green);color:#fff;border-radius:10px;padding:8px 14px;max-width:70ch;font-weight:600}
+.tw-cal,.tw-alert{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0}
+.tw-cal p{margin:0 0 4px}
+.tw-alert{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tw-alert h3{width:100%;margin:0}
+.tw-alert p{width:100%;margin:0}
+.tw-alert select{font:inherit;border:0;background:none;color:inherit}
 .tw-cv{position:relative}
 .tw-chart svg{width:100%;height:170px;display:block}
 .tw-tag{position:absolute;transform:translateX(-50%);font-size:12px;font-weight:700;color:#0B6B50;background:var(--marble);padding:0 4px;border-radius:4px;white-space:nowrap}
@@ -367,7 +374,27 @@ p{margin:.5em 0}
   </div>
   <div class="tw-bar"><div id="twPct"></div></div>
   <p id="twNote" class="lead"></p>
+  <p class="tw-flash" id="twFlash" hidden></p>
   <div class="tw3d" id="tw3d"><div class="tw-hint">আঙুল দিয়ে ঘুরিয়ে দেখুন, দুই আঙুলে কাছে-দূরে</div></div>
+  <div class="tw-cal">
+    <p><b>লাইভ ভিডিওতে এখন কেমন দেখছেন?</b> চাপ দিলে পরের ৩ ঘণ্টার হিসাব আপনার দেখা অনুযায়ী ঠিক হয়ে যাবে।</p>
+    <div class="btn-row">
+      <button class="btn small" data-cal="low" style="background:#1E9E62">কম</button>
+      <button class="btn small" data-cal="mid" style="background:#C9A24A;color:#000">মাঝারি</button>
+      <button class="btn small" data-cal="high" style="background:#D9822B">বেশি</button>
+      <button class="btn small" data-cal="max" style="background:#C0392B">খুব বেশি</button>
+      <a class="btn small ghost" href="https://www.youtube.com/results?search_query=makkah+live&sp=EgJAAQ%253D%253D" target="_blank" rel="noopener">লাইভ ভিডিও খুলুন</a>
+    </div>
+  </div>
+  <div class="tw-alert">
+    <h3>অ্যালার্ট</h3>
+    <label class="toggle"><input type="checkbox" id="alCrowd"> তাওয়াফে ভিড় কমলে জানাও</label>
+    <label class="toggle"><input type="checkbox" id="alPrayer"> নামাজের সময় জানাও</label>
+    <label class="toggle">আজানের
+      <select id="alBefore"><option value="0">ঠিক সময়ে</option><option value="10">১০ মিনিট আগে</option><option value="15">১৫ মিনিট আগে</option><option value="30">৩০ মিনিট আগে</option></select>
+    </label>
+    <p class="src" id="alState"></p>
+  </div>
   <label class="tw-sl"><span>সময় বদলে দেখুন</span><input type="range" id="twSlider" min="0" max="1439" step="5" value="0"></label>
   <div class="two">
     <div>
@@ -387,7 +414,7 @@ p{margin:.5em 0}
       </div>
     </div>
   </div>
-  <div class="note">৩ডি ছবির ভিড় আনুমানিক। এটা সৌদি হজ মন্ত্রণালয়ের ঘোষিত বেশি ও কম ভিড়ের সময়, আজকের নামাজের ওয়াক্ত, শুক্রবার, রমজান আর হজের মৌসুম ধরে প্রতি মিনিটে হিসাব হয়। মাতাফের সেন্সরের আসল লাইভ সংখ্যা সৌদি কর্তৃপক্ষ শুধু তাদের ওয়েবসাইট আর নুসুক অ্যাপে দেখায়, অন্য অ্যাপকে দেয় না। তাই যাওয়ার আগে ওপরের সরকারি লাইভ পাতাটা একবার দেখে নিন।</div>
+  <div class="note">৩ডি ছবির ভিড় আনুমানিক। উমরাহ মৌসুমে মাতাফে সাধারণত রাতভর ভিড় থাকে, মাগরিব থেকে মাঝরাত আর ফজরের আগে সবচেয়ে বেশি। তুলনামূলক ফাঁকা থাকে সকাল ৯টা থেকে সাড়ে ১১টা আর দুপুরের পরে। এর সাথে আজকের নামাজের ওয়াক্ত, শুক্রবার, রমজান আর হজের মৌসুম ধরে প্রতি মিনিটে হিসাব হয়। লাইভ ভিডিও দেখে ওপরের বোতাম চাপলে হিসাব আরও ঠিক হয়। মাতাফের সেন্সরের আসল লাইভ সংখ্যা সৌদি কর্তৃপক্ষ শুধু তাদের ওয়েবসাইট আর নুসুক অ্যাপে দেখায়, অন্য অ্যাপকে দেয় না। তাই যাওয়ার আগে ওপরের সরকারি লাইভ পাতাটা একবার দেখে নিন।</div>
 </section>
 
 <!-- QURAN -->
@@ -555,7 +582,7 @@ function renderHome(){
   $("#srcNote").textContent = "তথ্যসূত্র: " + H.sources + " সর্বশেষ হালনাগাদ: " + H.updated + "।";
   const pct = m => (m / 1440 * 100) + "%";
   const seg = (cls, [a, b]) => `<div class="seg ${cls}" style="left:${pct(a)};width:${pct(b - a)}"></div>`;
-  let bar = seg("peak", [1020, 1260]) + seg("calm", [0, 240]) + seg("calm", [540, 960]) + seg("calm", [1320, 1440]);
+  let bar = seg("peak", [1070, 1440]) + seg("peak", [0, 60]) + seg("calm", [555, 690]) + seg("calm", [800, 940]);
   (H.women.wait || []).forEach(w => bar += seg("wait", w));
   H.women.open.forEach(w => bar += seg("women", w));
   H.men.open.forEach(w => bar += seg("men", w));
