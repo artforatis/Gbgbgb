@@ -114,6 +114,57 @@ p{margin:.5em 0}
 .map-filters{position:absolute;top:10px;left:10px;right:10px;z-index:500;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .map-filters button{flex:0 0 auto;border:0;border-radius:999px;padding:8px 14px;background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .map-filters button[aria-pressed="true"]{background:var(--kiswa);color:var(--gold)}
+/* hajj / umrah / madinah guide */
+.g-wrap{display:block}
+@media (min-width:1000px){ .g-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:28px;align-items:start} .g-aside{position:sticky;top:calc(var(--band-h,150px) + 12px)} }
+.g-player{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:#0d1726;border:1px solid var(--line);margin:10px 0}
+.g-stage{position:relative;height:min(52vh,470px);min-height:260px}
+.g-stage canvas{display:block}
+.g-player:fullscreen{border-radius:0;margin:0}
+.g-player:fullscreen .g-stage{flex:1;height:auto}
+.g-cap{background:#101c2d;color:#fff;padding:10px 14px;min-height:76px}
+.g-cap b{display:block;color:var(--gold);font-size:15.5px}
+.g-cap span{font-size:15px;line-height:1.55}
+.g-cnt{position:absolute;right:10px;top:10px;z-index:3;background:var(--gold);color:#000;font-weight:800;border-radius:10px;padding:2px 12px;font-size:16px}
+.g-cnt:empty{display:none}
+.g-ctl{display:flex;gap:6px;justify-content:center;padding:8px;background:#101c2d;border-top:1px solid #22324a}
+.g-ctl button{border:0;border-radius:10px;min-width:46px;height:42px;padding:0 12px;background:#24364f;color:#fff;font-weight:700;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.g-ctl button:active{background:var(--gold);color:#000}
+.g-empty{position:absolute;inset:0;display:grid;place-items:center;color:#cfd8dc;text-align:center;padding:20px}
+.g-intro p{font-family:var(--read);line-height:1.85;max-width:70ch}
+.g-more>summary{color:var(--green);font-weight:700;cursor:pointer;margin:4px 0 8px}
+.tabs button.nw{white-space:nowrap;font-size:11.5px;letter-spacing:-.2px}
+.g-prog{display:flex;align-items:center;gap:10px;margin:10px 0 4px;font-size:14px;color:var(--muted)}
+.g-prog .bar{flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.g-prog .bar i{display:block;height:100%;background:var(--green)}
+.g-step{border:1px solid var(--line);background:var(--surface);border-radius:16px;margin:12px 0;overflow:hidden}
+.g-step>summary{list-style:none;display:flex;gap:12px;align-items:center;padding:14px 16px;cursor:pointer}
+.g-step>summary::-webkit-details-marker{display:none}
+.g-num{flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:var(--kiswa);color:var(--gold);display:grid;place-items:center;font-weight:800}
+.g-step.done .g-num{background:var(--green);color:#fff}
+.g-sum{flex:1;min-width:0}
+.g-when{font-size:13px;color:var(--muted);font-weight:600}
+.g-sum h3{font-size:18px}
+.g-badge{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--green);border:1.5px solid var(--green);border-radius:8px;padding:0 6px}
+.g-in{padding:0 16px 16px}
+.g-in>p{font-family:var(--read);line-height:1.85;max-width:70ch}
+.g-in h4{margin:16px 0 6px;font-size:16px}
+.g-todo{list-style:none;padding:0;margin:6px 0}
+.g-todo li{margin:4px 0}
+.g-todo label{display:flex;gap:10px;align-items:flex-start;padding:6px 8px;border-radius:10px;cursor:pointer}
+.g-todo label:hover{background:var(--green-soft)}
+.g-todo input{width:22px;height:22px;flex:0 0 auto;margin-top:2px;accent-color:var(--green)}
+.g-todo input:checked + span{color:var(--muted);text-decoration:line-through}
+.g-dua{background:var(--marble);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.g-dua .ar{font-size:27px;text-align:right}
+.g-dua .pron{color:var(--green);font-weight:600}
+.g-dua .mean{font-family:var(--read);line-height:1.8}
+.g-dua .ref{font-size:13px;color:var(--muted)}
+.g-play{margin:4px 0 8px}
+.g-slot:empty{display:none}
+.city-sw{flex:0 0 auto;display:flex;background:var(--surface);border-radius:999px;box-shadow:0 1px 4px rgba(0,0,0,.25);padding:3px;margin-right:4px}
+.map-filters .city-sw button{box-shadow:none;padding:5px 12px}
+.map-filters .city-sw button[aria-pressed="true"]{background:var(--green);color:#fff}
 .map-tools{position:absolute;right:10px;bottom:16px;z-index:500;display:flex;flex-direction:column;gap:8px}
 .map-tools button{min-width:56px;height:48px;padding:0 8px;border-radius:14px;border:0;background:var(--surface);color:var(--ink);box-shadow:0 1px 5px rgba(0,0,0,.3);display:grid;place-items:center;font-weight:700;font-size:13px;line-height:1.1}
 .sheet{position:absolute;left:10px;right:86px;bottom:16px;z-index:600;background:var(--surface);border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,.35);padding:14px 16px;max-height:68%;overflow:auto;display:none}
@@ -323,11 +374,47 @@ p{margin:.5em 0}
   <p class="src" id="srcNote"></p>
 </section>
 
+<!-- HAJJ / UMRAH / MADINAH GUIDE -->
+<section class="view" id="v-guide" aria-label="হজ, উমরাহ ও মদিনা">
+  <div class="seg-ctl" role="group" id="gSeg">
+    <button data-g="umrah" aria-pressed="true">উমরাহ</button>
+    <button data-g="hajj" aria-pressed="false">হজ</button>
+    <button data-g="madinah" aria-pressed="false">মদিনা</button>
+  </div>
+  <div class="g-wrap">
+    <div class="g-main">
+      <h2 id="gTitle" style="margin-top:6px"></h2>
+      <div class="g-intro" id="gIntro"></div>
+      <div class="g-prog"><span id="gProgT"></span><span class="bar"><i id="gProgB" style="width:0"></i></span><button class="btn ghost small" id="gReset">টিক মুছুন</button></div>
+      <div class="toc" id="gToc"></div>
+      <div id="gSteps"></div>
+    </div>
+    <aside class="g-aside" id="gAside">
+      <div class="g-player" id="gPlayer">
+        <div class="g-stage" id="gStage">
+          <div class="g-empty" id="gEmpty">যেকোনো ধাপের “৩ডি তে দেখুন” চাপুন।</div>
+          <div class="g-cnt" id="gCnt"></div>
+        </div>
+        <div class="g-cap" id="gCap"><b id="gCapT">৩ডি গাইড</b><span id="gCapL">প্রতিটি ধাপ কোথায় কীভাবে করতে হয়, এখানে চলমান ছবিতে দেখা যাবে।</span></div>
+        <div class="g-ctl">
+          <button id="gPrev" aria-label="আগের ধাপ"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>আগের</button>
+          <button id="gPause" aria-label="থামান"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5v14M15 5v14"/></svg></button>
+          <button id="gRe" aria-label="আবার শুরু"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+          <button id="gFull" aria-label="বড় করে দেখুন"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+          <button id="gNext" aria-label="পরের ধাপ">পরের<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+      </div>
+      <p class="src" style="margin-top:0">আঙুল দিয়ে ঘুরিয়ে দেখুন, দুই আঙুলে কাছে-দূরে। ৩ডি ছবি বোঝানোর জন্য, মাপ হুবহু নয়।</p>
+    </aside>
+  </div>
+</section>
+
 <!-- MAP -->
 <section class="view" id="v-map" aria-label="ম্যাপ">
   <div class="map-wrap">
     <div id="map" role="application" aria-label="মক্কার ম্যাপ"></div>
     <div class="map-filters" id="filters">
+      <span class="city-sw" id="citySw" role="group" aria-label="শহর"><button data-city="makkah" aria-pressed="true">মক্কা</button><button data-city="madinah" aria-pressed="false">মদিনা</button></span>
       <button data-f="all" aria-pressed="true">সব</button>
       <button data-f="gate" aria-pressed="false">গেট</button>
       <button data-f="holy" aria-pressed="false">হারামের ভেতরে</button>
@@ -472,6 +559,7 @@ p{margin:.5em 0}
 
 <nav class="tabs" aria-label="প্রধান মেনু">
   <button data-v="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="15"/><path d="M4 10h16"/><path d="M14 21v-5a2 2 0 0 1 4 0v5"/></svg>হাতিম</button>
+  <button data-v="guide" class="nw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l8-4 8 4v10l-8 4-8-4z"/><path d="M4 7l8 4 8-4M12 11v10"/></svg>হজ-উমরাহ</button>
   <button data-v="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>ম্যাপ</button>
   <button data-v="tawaf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="6" height="6"/><path d="M12 3a9 9 0 1 1-8.5 6"/><path d="M3 4v5h5"/></svg>তাওয়াফ</button>
   <button data-v="quran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z"/><path d="M12 6v14"/></svg>কুরআন</button>
@@ -481,6 +569,7 @@ p{margin:.5em 0}
 
 <script src="vendor/leaflet/leaflet.js"></script>
 <script>window.L || document.write('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');</script>
+<script>if (window.Capacitor) document.write('<script src="capacitor.js"><\/script>');</script>
 <script src="vendor/three/three.min.js"></script>
 <script>window.THREE || document.write('<script src="https://unpkg.com/three@0.149.0/build/three.min.js"><\/script>');</script>
 <script src="translit.js"></script>
@@ -491,6 +580,12 @@ p{margin:.5em 0}
 <script src="seerah-3.js"></script>
 <script src="duas.js"></script>
 <script src="sunnah.js"></script>
+<script src="umrah.js"></script>
+<script src="hajj.js"></script>
+<script src="madinah.js"></script>
+<script src="madinah-places.js"></script>
+<script src="haram3d.js"></script>
+<script src="guide3d.js"></script>
 <script src="tawaf.js"></script>
 <script>
 "use strict";
@@ -505,7 +600,13 @@ const store = {
 };
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const H = window.HATEEM;
-const PLACES = window.PLACES || [];
+const PLACES = (window.PLACES || []).map(p => Object.assign({ city:"makkah" }, p))
+  .concat((window.MADINAH_PLACES || []).map(p => Object.assign({}, p, { id:"md-" + p.id, via: p.via ? "md-" + p.via : undefined, city:"madinah" })));
+const CITY = {
+  makkah: { center:[21.4226, 39.8262], kaaba:[21.42251, 39.82618], name:"মক্কা", home:"হারাম", holy:"হারামের ভেতরে", outside:"মক্কার বাইরে", osm:"data/osm.json", walk:"data/walk.json", outView:[[21.41, 39.88], 12], histView:[[21.428, 39.8285], 15] },
+  madinah: { center:[24.4672, 39.6112], kaaba:[24.46712, 39.61257], name:"মদিনা", home:"নববী", holy:"মসজিদে নববী", outside:"মদিনার বাইরে", osm:"data/osm-madinah.json", walk:"data/walk-madinah.json", outView:[[24.46, 39.61], 12], histView:[[24.467, 39.611], 15] }
+};
+let city = store.get("city", "makkah"); if (!CITY[city]) city = "makkah";
 const IS_APP = !!window.Capacitor;
 
 /* ============ theme & online state ============ */
@@ -591,8 +692,9 @@ function renderHome(){
 
 /* ============ Map ============ */
 const KIND_BN = { gate:"গেট", holy:"হারামের ভেতরে", history:"ঐতিহাসিক স্থান", outside:"মক্কার বাইরে", service:"ওযুখানা", hateem:"হাতিম" };
+const kindBn = p => p.kind === "holy" ? CITY[p.city].holy : p.kind === "outside" ? CITY[p.city].outside : p.kind === "service" && p.city === "madinah" ? "সেবা" : (KIND_BN[p.kind] || "");
 const byId = id => PLACES.find(p => p.id === id);
-const HARAM = [21.4226, 39.8262];
+let HARAM = CITY[city].center;
 let map = null, base = {}, baseName = store.get("mapBase", "sat"), markers = {}, filter = "all";
 let selected = null, nav = null;
 const me = { marker:null, circle:null, lat:null, lng:null, acc:null, heading:null };
@@ -617,11 +719,12 @@ function cachedTiles(url, opt){
   });
   return new Layer(url, opt);
 }
-let vectorLayer = null, vectorState = "none";
+let vectorLayer = null;
+const vectorCache = {};
 function loadVector(){
-  if (vectorState === "ready") return Promise.resolve(vectorLayer);
-  vectorState = "loading";
-  return fetch("data/osm.json").then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => {
+  const c = city;
+  if (vectorCache[c]) return vectorCache[c];
+  return vectorCache[c] = fetch(CITY[c].osm).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => {
     const rend = L.canvas({ padding:.5 });
     const g = L.layerGroup();
     const pts = f => { const a = []; for (let i = 0; i < f.length; i += 2) a.push([f[i], f[i+1]]); return a; };
@@ -631,9 +734,10 @@ function loadVector(){
     (d.m || []).forEach(f => L.polygon(pts(f), { renderer:rend, color:"#C9A24A", weight:1, fillColor:C.m, fillOpacity:1, interactive:false }).addTo(g));
     (d.main || []).forEach(f => L.polyline(pts(f), { renderer:rend, color:C.main, weight:5, interactive:false }).addTo(g));
     (d.foot || []).forEach(f => L.polyline(pts(f), { renderer:rend, color:"#B9B19C", weight:1.5, dashArray:"4 3", interactive:false }).addTo(g));
-    L.circle([21.42251, 39.82618], { renderer:rend, radius:9, color:"#000", fillColor:"#000", fillOpacity:1, interactive:false }).addTo(g);
-    vectorLayer = g; vectorState = "ready"; return g;
-  }).catch(() => { vectorState = "none"; return null; });
+    if (c === "makkah") L.circle(CITY.makkah.kaaba, { renderer:rend, radius:9, color:"#000", fillColor:"#000", fillOpacity:1, interactive:false }).addTo(g);
+    else L.circle(CITY.madinah.kaaba, { renderer:rend, radius:7, color:"#1f8a4c", fillColor:"#1f8a4c", fillOpacity:1, interactive:false }).addTo(g);
+    return g;
+  }).catch(() => { delete vectorCache[c]; return null; });
 }
 const BASE_LABEL = { sat:"স্যাটেলাইট", street:"রাস্তা", off:"অফলাইন" };
 function setBase(name){
@@ -644,8 +748,9 @@ function setBase(name){
   baseName = name; store.set("mapBase", name);
   $("#btnLayer").textContent = BASE_LABEL[name];
   if (name === "off") {
+    const c0 = city;
     loadVector().then(g => {
-      if (g && baseName === "off") g.addTo(map);
+      if (g && baseName === "off" && city === c0) { if (vectorLayer) map.removeLayer(vectorLayer); vectorLayer = g; g.addTo(map); }
       else if (!g) toast("অফলাইন ম্যাপ এখনো তৈরি হয়নি। ইন্টারনেট থাকলে স্যাটেলাইট ম্যাপ একবার ঘুরে দেখুন, সেটুকু পরে অফলাইনেও দেখা যাবে।");
     });
   } else base[name].addTo(map);
@@ -666,27 +771,42 @@ function initMap(){
     m.on("click", () => openSheet(p.id));
     markers[p.id] = m;
   }
-  applyFilter(false);
+  setCity(city, false); map.setView(HARAM, city === "madinah" ? 16 : 17);
 }
 function applyFilter(move = true){
   if (!map) return;
   for (const p of PLACES) {
-    const show = filter === "all" || p.kind === filter || (p.kind === "hateem" && (filter === "holy" || filter === "gate"));
+    const show = p.city === city && (filter === "all" || p.kind === filter || (p.kind === "hateem" && (filter === "holy" || filter === "gate")));
     if (show || (nav && nav.p.id === p.id)) markers[p.id].addTo(map); else markers[p.id].remove();
   }
   if (!move) return;
-  if (filter === "outside") map.setView([21.41, 39.88], 12);
-  else if (filter === "history") map.setView([21.428, 39.8285], 15);
+  if (filter === "outside") map.setView(...CITY[city].outView);
+  else if (filter === "history") map.setView(...CITY[city].histView);
   else if (filter !== "all") map.setView(HARAM, 17);
 }
+function setCity(c, move = true){
+  if (!CITY[c]) return;
+  city = c; store.set("city", c); HARAM = CITY[c].center;
+  $$("#citySw button").forEach(b => b.setAttribute("aria-pressed", b.dataset.city === c));
+  $("#btnHaram").textContent = CITY[c].home;
+  $('#filters [data-f="holy"]').textContent = CITY[c].holy;
+  $('#filters [data-f="outside"]').textContent = CITY[c].outside;
+  $('#filters [data-f="service"]').textContent = c === "madinah" ? "সেবা" : "ওযু";
+  $("#map").setAttribute("aria-label", CITY[c].name + "র ম্যাপ");
+  if (!map) return;
+  if (baseName === "off") setBase("off");
+  applyFilter(false);
+  if (move) map.setView(HARAM, c === "madinah" ? 16 : 17);
+}
+$("#citySw").addEventListener("click", e => { const b = e.target.closest("[data-city]"); if (b && b.dataset.city !== city) { stopNav(false); $("#sheet").classList.remove("show"); setCity(b.dataset.city); } });
 $("#filters").addEventListener("click", e => {
-  const b = e.target.closest("button"); if (!b) return;
+  const b = e.target.closest("button[data-f]"); if (!b) return;
   filter = b.dataset.f;
   $$("#filters button").forEach(x => x.setAttribute("aria-pressed", x === b));
   applyFilter();
 });
 $("#btnLayer").addEventListener("click", () => setBase(baseName === "sat" ? "street" : baseName === "street" ? "off" : "sat"));
-$("#btnHaram").addEventListener("click", () => map && map.setView(HARAM, 17));
+$("#btnHaram").addEventListener("click", () => map && map.setView(HARAM, city === "madinah" ? 16 : 17));
 $("#btnMe").addEventListener("click", () => { startWatch(); if (me.lat !== null && map) map.setView([me.lat, me.lng], 18); else toast("আপনার অবস্থান খোঁজা হচ্ছে…"); });
 
 let toastT;
@@ -695,7 +815,8 @@ function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add
 function openSheet(id){
   const p = byId(id); if (!p) return;
   selected = p;
-  $("#sKind").textContent = KIND_BN[p.kind];
+  if (p.city !== city) setCity(p.city, false);
+  $("#sKind").textContent = kindBn(p);
   $("#sTitle").innerHTML = esc(p.name) + (p.approx ? '<span class="approx">আনুমানিক</span>' : "");
   $("#sText").innerHTML = p.about
     ? `<h4>এটা কী</h4><p>${esc(p.about)}</p>${p.why ? `<h4>কেন যাবেন</h4><p>${esc(p.why)}</p>` : ""}${p.tips && p.tips.length ? `<h4>টিপস</h4><ul>${p.tips.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}${p.via ? `<p class="src">যেতে হবে ${esc((byId(p.via) || {}).name || "")} দিয়ে।</p>` : ""}`
@@ -775,11 +896,12 @@ const DIRS = ["উত্তর", "উত্তর-পূর্ব", "পূর�
 function fmtDist(m){ return m >= 1000 ? `${bn((m/1000).toFixed(1))} কিমি` : `${bn(Math.round(m))} মিটার`; }
 
 /* --- walking network: shortest path on streets, alleys, footpaths and plazas (works without internet) --- */
-let walkG = null, walkState = "none", walkP = null;
-function loadWalk(){
-  if (walkState !== "none") return walkP;
+let walkState = "none";
+const walkCache = {};
+function loadWalk(c = city){
+  if (walkCache[c]) return walkCache[c];
   walkState = "loading";
-  walkP = fetch("data/walk.json").then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => {
+  return walkCache[c] = fetch(CITY[c].walk).then(r => { if (!r.ok) throw 0; return r.json(); }).then(d => {
     const n = d.n, N = n.length / 2, la = new Float64Array(N), lo = new Float64Array(N);
     for (let i = 0; i < N; i++) { la[i] = (n[2*i] + 2140000) / 1e5; lo[i] = (n[2*i+1] + 3980000) / 1e5; }
     const deg = new Uint32Array(N + 1), e = d.e;
@@ -787,11 +909,11 @@ function loadWalk(){
     const off = new Uint32Array(N + 1); for (let i = 0; i < N; i++) off[i+1] = off[i] + deg[i];
     const fill = off.slice(0, N), nb = new Uint32Array(off[N]);
     for (let i = 0; i < e.length; i += 2) { nb[fill[e[i]]++] = e[i+1]; nb[fill[e[i+1]]++] = e[i]; }
-    walkG = { la, lo, off, nb, N }; walkState = "ready"; return walkG;
-  }).catch(() => { walkState = "fail"; return null; });
-  return walkP;
+    walkState = "ready"; return { la, lo, off, nb, N };
+  }).catch(() => { walkState = "fail"; delete walkCache[c]; return null; });
 }
-const KX = 111320 * Math.cos(21.42 * Math.PI / 180), KY = 110540;
+let KX = 111320 * Math.cos(CITY[city].center[0] * Math.PI / 180);
+const KY = 110540;
 const md = (a, b, c, d) => Math.hypot((d - b) * KX, (c - a) * KY);
 function nearestNode(g, lat, lng){
   let best = -1, bd = Infinity;
@@ -828,7 +950,8 @@ function decode6(str){
   return out;
 }
 async function findRoute(a, b){
-  const g = await loadWalk();
+  KX = 111320 * Math.cos(b[0] * Math.PI / 180);
+  const g = await loadWalk(b[0] > 23 ? "madinah" : "makkah");
   if (g) {
     const s = nearestNode(g, a[0], a[1]), t = nearestNode(g, b[0], b[1]);
     if (s.d < 400 && t.d < 400) { const p = astar(g, s.i, t.i); if (p) return { pts:p, src:"offline" }; }
@@ -886,6 +1009,7 @@ function startNav(id){
   setTimeout(() => {
     initMap();
     stopNav(true);
+    if (p.city !== city) setCity(p.city, false);
     const via = p.via ? byId(p.via) : null;
     nav = { p, via, goal: via || p, route:null, routing:false, lastRoute:0, layers:[], arrived:false, fitted:false };
     $("#sheet").classList.remove("show");
@@ -899,7 +1023,7 @@ function startNav(id){
       map.setView([p.lat, p.lng], p.kind === "outside" ? 14 : 18);
       setTimeout(() => { const el = document.querySelector(`[data-pin="${p.id}"]`); if (el) el.classList.add("target"); }, 50);
     }
-    loadWalk(); startWatch(); updateNav();
+    loadWalk(p.city); startWatch(); updateNav();
   }, 60);
 }
 function clearNavLayers(){ if (nav) { nav.layers.forEach(l => l.remove()); nav.layers = []; } }
@@ -1028,7 +1152,10 @@ function show(v){
   if (v === "quran" && !$("#surahList").children.length) renderSurahList();
   if (v === "seerah") renderSeerah();
   if (v === "sunnah") renderDuas();
+  if (v === "guide") { if (!gRendered) { gRendered = true; renderGuide(); } else gParkPlayerIfIdle(); }
+  gRun();
 }
+function gParkPlayerIfIdle(){ if (gActive === null) gParkPlayer(); setTimeout(() => window.Guide3D && Guide3D.resize(), 30); }
 $$(".tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
 
 /* ============ Quran ============ */
@@ -1219,11 +1346,129 @@ function renderDuas(){
 $("#tabDua").addEventListener("click", () => { $("#duaPane").hidden = false; $("#sunnahPane").hidden = true; $("#tabDua").setAttribute("aria-pressed", "true"); $("#tabSunnah").setAttribute("aria-pressed", "false"); });
 $("#tabSunnah").addEventListener("click", () => { $("#duaPane").hidden = true; $("#sunnahPane").hidden = false; $("#tabDua").setAttribute("aria-pressed", "false"); $("#tabSunnah").setAttribute("aria-pressed", "true"); });
 
+/* ============ Hajj / Umrah / Madinah step-by-step guide ============ */
+let gCur = store.get("guideCur", "umrah"), gActive = null, gMounted = false, gPaused = false, gVisible = true;
+const gDone = store.get("guideDone", {});
+const gNarrow = () => !matchMedia("(min-width:1000px)").matches;
+function gData(){ return (window.GUIDE || {})[gCur]; }
+function gSceneSteps(){ const G = gData(); return G ? G.sections.map((s, i) => [s, i]).filter(([s]) => s.scene && s.anim) : []; }
+function gDua(d){
+  return `<div class="g-dua"><h4 style="margin:0 0 4px">${esc(d.t)}${d.times ? ` <span class="times">${esc(d.times)}</span>` : ""}</h4>
+    ${d.note ? `<p class="src" style="margin:0 0 4px">${esc(d.note)}</p>` : ""}
+    <div class="ar">${esc(d.ar)}</div>
+    <p><span class="lbl">উচ্চারণ: </span><span class="pron">${esc(d.pron)}</span></p>
+    <p class="mean"><span class="lbl">অর্থ: </span>${esc(d.mean)}</p>
+    ${d.ref ? `<div class="ref">${esc(d.ref)}</div>` : ""}</div>`;
+}
+function gProgress(){
+  const G = gData(); if (!G) return;
+  let all = 0, done = 0;
+  G.sections.forEach(s => {
+    const n = (s.todo || []).length; let d = 0;
+    for (let i = 0; i < n; i++) if (gDone[gCur + ":" + s.id + ":" + i]) d++;
+    all += n; done += d;
+    const el = document.getElementById("gs-" + s.id); if (el) el.classList.toggle("done", n > 0 && d === n);
+  });
+  $("#gProgT").textContent = `${bn(done)} / ${bn(all)} কাজ শেষ`;
+  $("#gProgB").style.width = (all ? done / all * 100 : 0) + "%";
+}
+function renderGuide(){
+  $$("#gSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.g === gCur));
+  const G = gData();
+  if (!G) { $("#gTitle").textContent = ""; $("#gIntro").innerHTML = ""; $("#gToc").innerHTML = ""; $("#gSteps").innerHTML = '<p class="loading">এই অংশটি পাওয়া যায়নি। অ্যাপ হালনাগাদ করুন।</p>'; return; }
+  gParkPlayer();
+  $("#gTitle").textContent = G.title + ": ধাপে ধাপে";
+  const intro = G.intro || [];
+  $("#gIntro").innerHTML = (intro[0] ? `<p>${esc(intro[0])}</p>` : "") +
+    (intro.length > 1 ? `<details class="g-more"><summary>আরও পড়ুন</summary>${intro.slice(1).map(p => `<p>${esc(p)}</p>`).join("")}</details>` : "") +
+    (gCur === "madinah" ? '<div class="btn-row"><button class="btn gold" id="gMdMap">মদিনার ম্যাপ খুলুন</button></div>' : "");
+  $("#gToc").innerHTML = G.sections.map((s, i) => `<button data-gs="${esc(s.id)}">${bn(i + 1)}. ${esc(s.when || s.title)}</button>`).join("");
+  $("#gSteps").innerHTML = G.sections.map((s, i) => `<details class="g-step" id="gs-${esc(s.id)}"${i === 0 ? " open" : ""}>
+    <summary><span class="g-num">${bn(i + 1)}</span><span class="g-sum"><span class="g-when">${esc(s.when || "")}</span><h3>${esc(s.title)}</h3></span>${s.scene && s.anim ? '<span class="g-badge">৩ডি</span>' : ""}</summary>
+    <div class="g-in">
+      ${s.scene && s.anim ? `<button class="btn gold small g-play" data-g3="${i}">▶ ৩ডি তে দেখুন</button><div class="g-slot"></div>` : ""}
+      ${(s.body || []).map(p => `<p>${esc(p)}</p>`).join("")}
+      ${(s.todo || []).length ? `<h4>যা করবেন, ক্রমানুসারে</h4><ul class="g-todo">${s.todo.map((t, k) => `<li><label><input type="checkbox" data-gt="${esc(s.id)}:${k}"${gDone[gCur + ":" + s.id + ":" + k] ? " checked" : ""}><span>${esc(t)}</span></label></li>`).join("")}</ul>` : ""}
+      ${(s.duas || []).length ? `<h4>দোয়া ও যিকির</h4>${s.duas.map(gDua).join("")}` : ""}
+      ${(s.avoid || []).length ? `<div class="note warn"><b>যা করবেন না</b><ul class="plain">${s.avoid.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>` : ""}
+      ${(s.women || []).length ? `<div class="note field"><b>মহিলাদের জন্য</b><ul class="plain">${s.women.map(t => `<li>${esc(t)}</li>`).join("")}</ul></div>` : ""}
+      ${s.src ? `<p class="src">তথ্যসূত্র: ${esc(s.src)}</p>` : ""}
+    </div></details>`).join("");
+  gProgress();
+  gActive = null;
+  if (!gNarrow()) { const first = gSceneSteps()[0]; if (first) gPlay(first[1], false); }
+}
+function gParkPlayer(){ const pl = $("#gPlayer"), aside = $("#gAside"); if (pl.parentNode !== aside) aside.prepend(pl); $("#gAside").hidden = gNarrow() && !gActive; }
+function gPlay(i, scroll = true){
+  const G = gData(); const s = G && G.sections[i]; if (!s || !s.scene) return;
+  const card = document.getElementById("gs-" + s.id);
+  if (card && !card.open) card.open = true;
+  const pl = $("#gPlayer");
+  if (gNarrow() && card) { $(".g-slot", card).appendChild(pl); }
+  else $("#gAside").prepend(pl);
+  $("#gAside").hidden = gNarrow();
+  if (!gMounted) { gMounted = window.Guide3D && Guide3D.mount($("#gStage")); if (!gMounted) return; Guide3D.onCaption = gCaption; gObserve(); }
+  $("#gEmpty").hidden = true;
+  gActive = i; gPaused = false; gPauseIcon();
+  Guide3D.play(s.scene, s.anim);
+  $$(".g-play").forEach(b => b.textContent = +b.dataset.g3 === i ? "● এখন দেখানো হচ্ছে" : "▶ ৩ডি তে দেখুন");
+  if (scroll) (gNarrow() ? pl : card).scrollIntoView({ behavior:"smooth", block: gNarrow() ? "center" : "start" });
+}
+let gLastCap = "";
+function gCaption(t, l, c){
+  const key = t + "|" + l + "|" + c; if (key === gLastCap) return; gLastCap = key;
+  $("#gCapT").textContent = t; $("#gCapL").textContent = l; $("#gCnt").textContent = c || "";
+}
+function gObserve(){
+  if (!("IntersectionObserver" in window)) return;
+  new IntersectionObserver(es => { gVisible = es[0].isIntersecting; gRun(); }, { threshold:.05 }).observe($("#gPlayer"));
+}
+function gRun(){
+  if (!gMounted) return;
+  const on = gVisible && $("#v-guide").classList.contains("active") && !document.hidden;
+  if (on) Guide3D.resume(); else Guide3D.stop();
+}
+document.addEventListener("visibilitychange", gRun);
+function gStep(d){
+  const list = gSceneSteps(); if (!list.length) return;
+  let k = list.findIndex(([, i]) => i === gActive);
+  k = k < 0 ? 0 : Math.max(0, Math.min(list.length - 1, k + d));
+  gPlay(list[k][1]);
+}
+$("#gSeg").addEventListener("click", e => { const b = e.target.closest("[data-g]"); if (!b || b.dataset.g === gCur) return; gCur = b.dataset.g; store.set("guideCur", gCur); renderGuide(); window.scrollTo(0, 0); });
+$("#v-guide").addEventListener("click", e => {
+  const p = e.target.closest("[data-g3]"); if (p) { gPlay(+p.dataset.g3); return; }
+  const t = e.target.closest("[data-gs]"); if (t) { const el = document.getElementById("gs-" + t.dataset.gs); if (el) { el.open = true; el.scrollIntoView({ behavior:"smooth" }); } return; }
+  if (e.target.closest("#gMdMap")) { show("map"); setTimeout(() => { initMap(); setCity("madinah"); }, 80); }
+});
+$("#v-guide").addEventListener("change", e => {
+  const c = e.target.closest("[data-gt]"); if (!c) return;
+  const k = gCur + ":" + c.dataset.gt;
+  if (c.checked) gDone[k] = 1; else delete gDone[k];
+  store.set("guideDone", gDone); gProgress();
+});
+$("#gReset").addEventListener("click", () => {
+  Object.keys(gDone).forEach(k => { if (k.startsWith(gCur + ":")) delete gDone[k]; });
+  store.set("guideDone", gDone); $$("#gSteps [data-gt]").forEach(c => c.checked = false); gProgress();
+});
+$("#gPrev").addEventListener("click", () => gStep(-1));
+$("#gNext").addEventListener("click", () => gStep(1));
+$("#gRe").addEventListener("click", () => { if (gActive !== null) gPlay(gActive, false); });
+function gPauseIcon(){ $("#gPause svg").innerHTML = gPaused ? '<path d="M7 4l13 8-13 8z"/>' : '<path d="M9 5v14M15 5v14"/>'; $("#gPause").setAttribute("aria-label", gPaused ? "চালান" : "থামান"); }
+$("#gPause").addEventListener("click", () => { if (!gMounted) return; gPaused = !gPaused; Guide3D.pause(gPaused); gPauseIcon(); });
+$("#gFull").addEventListener("click", () => {
+  const pl = $("#gPlayer");
+  if (document.fullscreenElement) document.exitFullscreen();
+  else if (pl.requestFullscreen) pl.requestFullscreen().then(() => setTimeout(() => window.Guide3D && Guide3D.resize(), 120)).catch(() => {});
+});
+document.addEventListener("fullscreenchange", () => setTimeout(() => window.Guide3D && Guide3D.resize(), 120));
+let gRendered = false;
+
 /* ============ start ============ */
-renderHome(); tick(); setInterval(tick, 20000); setBandH();
+renderHome(); tick(); setInterval(tick, 20000); setBandH(); setCity(city, false);
 const startView = (location.hash || "#home").slice(1);
 if (window.TawafView) TawafView.init();
-show(["home","map","tawaf","quran","seerah","sunnah"].includes(startView) ? startView : "home");
+show(["home","guide","map","tawaf","quran","seerah","sunnah"].includes(startView) ? startView : "home");
 if (!IS_APP && "serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
 </body>
