@@ -749,7 +749,7 @@ function resize() {
 }
 G.mount = function (el) {
   T = window.THREE; H3 = window.Haram3D;
-  if (!T || !H3) { el.insertAdjacentHTML("beforeend", '<p class="loading">৩ডি দেখানো যাচ্ছে না।</p>'); return false; }
+  if (!T || !H3) { el.insertAdjacentHTML("beforeend", '<p class="loading">৩ডি দেখানো যাচ্ছে না। ' + (!T ? "three.min.js" : "haram3d.js") + ' ফাইলটি পাওয়া যায়নি। অ্যাপ বা পাতা নতুন করে হালনাগাদ করুন।</p>'); return false; }
   if (mounted) return true;
   host = el; renderer = H3.setupRenderer(host); renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
   cam = new T.PerspectiveCamera(42, 1, .1, 3000);

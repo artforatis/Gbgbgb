@@ -128,8 +128,12 @@ async function buildQuran() {
 }
 
 /* ---------- 4. offline vector map of central Makkah (OpenStreetMap) ---------- */
-async function buildOsm() {
-  const bbox = "21.408,39.812,21.442,39.842";
+const CITIES = {
+  makkah: { osm: "21.408,39.812,21.442,39.842", walk: "21.400,39.800,21.452,39.858", suffix: "", center: [21.42251, 39.82618] },
+  madinah: { osm: "24.455,39.595,24.480,39.625", walk: "24.435,39.590,24.505,39.640", suffix: "-madinah", center: [24.46722, 39.61111] }
+};
+async function buildOsm(city = "makkah") {
+  const C = CITIES[city], bbox = C.osm;
   const q = `[out:json][timeout:120];(way["building"](${bbox});way["highway"](${bbox});way["amenity"="place_of_worship"](${bbox});way["landuse"="cemetery"](${bbox});way["natural"~"peak|ridge|cliff"](${bbox}););out geom;`;
   const hosts = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"];
   for (const h of hosts) {
@@ -150,8 +154,8 @@ async function buildOsm() {
           else out.main.push(flat);
         }
       }
-      fs.writeFileSync(path.join(ROOT, "data", "osm.json"), JSON.stringify(out));
-      log("offline map:", out.b.length, "buildings,", out.main.length + out.foot.length, "streets");
+      fs.writeFileSync(path.join(ROOT, "data", "osm" + C.suffix + ".json"), JSON.stringify(out));
+      log("offline map", city + ":", out.b.length, "buildings,", out.main.length + out.foot.length, "streets");
       return;
     } catch (e) { log("overpass failed at", h, e.message); }
   }
@@ -195,8 +199,8 @@ function isWalkArea(t) {
   return (t.area === "yes" && /^(pedestrian|footway|living_street|service|platform)$/.test(t.highway || "")) ||
          /^(pedestrian|footway)$/.test(t["area:highway"] || "") || t.place === "square";
 }
-async function buildWalk() {
-  const bbox = "21.400,39.800,21.452,39.858";
+async function buildWalk(city = "makkah") {
+  const C = CITIES[city], bbox = C.walk;
   const q = `[out:json][timeout:180];(way["highway"](${bbox});way["area:highway"](${bbox});way["place"="square"](${bbox}););out body geom;`;
   const hosts = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"];
   let j = null;
@@ -207,8 +211,8 @@ async function buildWalk() {
   if (!j) { log("walking network skipped"); return false; }
   const g = graphFromWays(j.elements || []);
   if (!g) { log("walking network empty"); return false; }
-  fs.writeFileSync(path.join(ROOT, "data", "walk.json"), JSON.stringify(g));
-  log("walking network:", g.n.length / 2, "points,", g.e.length / 2, "links");
+  fs.writeFileSync(path.join(ROOT, "data", "walk" + C.suffix + ".json"), JSON.stringify(g));
+  log("walking network", city + ":", g.n.length / 2, "points,", g.e.length / 2, "links");
   return true;
 }
 export function graphFromWays(elements) {
@@ -274,7 +278,8 @@ export function graphFromWays(elements) {
 export function readPlaces() {
   const ctx = { window: {} };
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, "places.js"), "utf8"), ctx);
-  return ctx.window.PLACES || [];
+  try { vm.runInNewContext(fs.readFileSync(path.join(ROOT, "madinah-places.js"), "utf8"), ctx); } catch (e) {}
+  return (ctx.window.PLACES || []).concat((ctx.window.MADINAH_PLACES || []).map(p => Object.assign({}, p, { id: "md-" + p.id })));
 }
 const strip = h => String(h || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 async function buildPhotos() {
@@ -320,7 +325,9 @@ async function main() {
     quran: hashOf("translit.js") + "-q1",
     osm: "osm-1",
     walk: WALK_V,
-    photos: hashOf("places.js") + "-p1",
+    osmMd: "osm-1",
+    walkMd: WALK_V,
+    photos: hashOf("places.js", "madinah-places.js") + "-p1",
   };
   const fresh = k => ver[k] === want[k] && !process.env.FORCE;
   if (!fresh("vendor") || !fs.existsSync(path.join(ROOT, "vendor", "three", "three.min.js"))) { copyVendor(); ver.vendor = want.vendor; }
@@ -328,6 +335,8 @@ async function main() {
   if (!process.env.SKIP_OSM) {
     if (!fresh("osm") || !fs.existsSync(path.join(ROOT, "data", "osm.json"))) { await buildOsm(); if (fs.existsSync(path.join(ROOT, "data", "osm.json"))) ver.osm = want.osm; }
     if (!fresh("walk") || !fs.existsSync(path.join(ROOT, "data", "walk.json"))) { if (await buildWalk()) ver.walk = want.walk; }
+    if (!fresh("osmMd") || !fs.existsSync(path.join(ROOT, "data", "osm-madinah.json"))) { await buildOsm("madinah"); if (fs.existsSync(path.join(ROOT, "data", "osm-madinah.json"))) ver.osmMd = want.osmMd; }
+    if (!fresh("walkMd") || !fs.existsSync(path.join(ROOT, "data", "walk-madinah.json"))) { if (await buildWalk("madinah")) ver.walkMd = want.walkMd; }
   }
   if (!process.env.SKIP_PHOTOS && !fresh("photos")) { if (await buildPhotos()) ver.photos = want.photos; }
   fs.writeFileSync(vf, JSON.stringify(ver, null, 1));
