@@ -188,13 +188,30 @@ function flash(msg) { const t = $("#twFlash"); if (!t) return; t.textContent = m
 
 /* ---------- alerts: low crowd + prayer times ---------- */
 const Alerts = (function () {
-  const LN = () => window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications;
+  // the app (APK) loads capacitor.js, which lets us reach the phone's own notification system
+  let _ln = null;
+  const LN = () => {
+    if (_ln) return _ln;
+    const C = window.Capacitor;
+    if (!C || !(C.isNativePlatform ? C.isNativePlatform() : C.isNative)) return null;
+    if (C.Plugins && C.Plugins.LocalNotifications) return (_ln = C.Plugins.LocalNotifications);
+    if (typeof C.registerPlugin === "function") return (_ln = C.registerPlugin("LocalNotifications"));
+    return null;
+  };
   let opt = Object.assign({ crowd: false, prayer: false, before: 10 }, store.get("alerts", {}));
   let webTimers = [];
   async function permission() {
     const ln = LN();
     if (ln) {
-      try { const r = await ln.requestPermissions(); return r.display === "granted"; } catch (e) { return false; }
+      try {
+        let r = await ln.checkPermissions();
+        if (r.display !== "granted") r = await ln.requestPermissions();
+        if (r.display === "granted") {
+          try { await ln.createChannel({ id: "haram", name: "Haram Guide", importance: 4, vibration: true, visibility: 1 }); } catch (e) {}
+          return true;
+        }
+        return false;
+      } catch (e) { flash("নোটিফিকেশন চালু করা যায়নি: " + (e && e.message ? e.message : e)); return false; }
     }
     if (!("Notification" in window)) return false;
     if (Notification.permission === "granted") return true;
@@ -233,7 +250,7 @@ const Alerts = (function () {
         const pend = await ln.getPending();
         const old = (pend.notifications || []).filter(n => n.id >= 1000 && n.id < 3000).map(n => ({ id: n.id }));
         if (old.length) await ln.cancel({ notifications: old });
-        if (list.length) await ln.schedule({ notifications: list.map(e => ({ id: e.id, title: e.title, body: e.body, schedule: { at: e.at, allowWhileIdle: true } })) });
+        if (list.length) await ln.schedule({ notifications: list.map(e => ({ id: e.id, title: e.title, body: e.body, channelId: "haram", schedule: { at: e.at, allowWhileIdle: true } })) });
       } catch (e) {}
     } else {
       webTimers.forEach(clearTimeout); webTimers = [];
@@ -270,232 +287,46 @@ const Alerts = (function () {
   return { init, reschedule };
 })();
 
-/* ---------- 3D Mataf ---------- */
+/* ---------- 3D Mataf (shared scene from haram3d.js) ---------- */
 function build3D(host) {
-  const T = window.THREE;
-  if (!T) { host.innerHTML = '<p class="loading">৩ডি দেখানো যাচ্ছে না।</p>'; return null; }
-  const renderer = new T.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
-  host.appendChild(renderer.domElement);
+  const T = window.THREE, H3 = window.Haram3D;
+  if (!T || !H3) { host.insertAdjacentHTML("beforeend", '<p class="loading">৩ডি দেখানো যাচ্ছে না।</p>'); return null; }
+  const renderer = H3.setupRenderer(host);
   const scene = new T.Scene();
   scene.fog = new T.Fog(0x0d1726, 160, 320);
   const cam = new T.PerspectiveCamera(42, 1, 1, 1200);
   const hemi = new T.HemisphereLight(0xffffff, 0xb8b2a2, 1.0); scene.add(hemi);
   const sun = new T.DirectionalLight(0xffffff, .55); sun.position.set(30, 90, 40); scene.add(sun);
-  const canvasTex = (w, h, draw) => { const c = document.createElement("canvas"); c.width = w; c.height = h; draw(c.getContext("2d"), w, h); const t = new T.CanvasTexture(c); t.anisotropy = 4; return t; };
-
-  /* floor: white marble with seams */
-  const floorTex = canvasTex(1024, 1024, (x, w) => {
-    x.fillStyle = "#f7f7f4"; x.fillRect(0, 0, w, w);
-    x.strokeStyle = "rgba(150,145,130,.22)"; x.lineWidth = 2;
-    for (let r = 30; r < 520; r += 22) { x.beginPath(); x.arc(512, 512, r, 0, Math.PI * 2); x.stroke(); }
-    for (let a = 0; a < 96; a++) { x.beginPath(); x.moveTo(512 + 30 * Math.cos(a / 96 * 6.283), 512 + 30 * Math.sin(a / 96 * 6.283)); x.lineTo(512 + 520 * Math.cos(a / 96 * 6.283), 512 + 520 * Math.sin(a / 96 * 6.283)); x.stroke(); }
-  });
-  const floor = new T.Mesh(new T.CircleGeometry(95, 128), new T.MeshLambertMaterial({ map: floorTex }));
-  floor.rotation.x = -Math.PI / 2; scene.add(floor);
-
-  /* Kaaba */
-  const kiswaTex = canvasTex(1024, 1024, (x, w, h) => {
-    x.fillStyle = "#060606"; x.fillRect(0, 0, w, h);
-    // woven text pattern
-    x.strokeStyle = "rgba(255,255,255,.045)"; x.lineWidth = 3;
-    for (let y = 30; y < h; y += 46) for (let i = 0; i < w; i += 60) { x.beginPath(); x.moveTo(i, y); x.bezierCurveTo(i + 15, y - 18, i + 35, y + 18, i + 52, y); x.stroke(); }
-    // golden belt (hizam) in the upper third
-    const by = 250, bh = 110;
-    const gg = x.createLinearGradient(0, by, 0, by + bh); gg.addColorStop(0, "#8a6a26"); gg.addColorStop(.5, "#e7c66f"); gg.addColorStop(1, "#8a6a26");
-    x.fillStyle = gg; x.fillRect(0, by, w, bh);
-    x.fillStyle = "#060606"; x.fillRect(0, by + 10, w, bh - 20);
-    x.strokeStyle = "#e2bf63"; x.lineWidth = 5;
-    for (let i = 0; i < w; i += 14) { x.beginPath(); x.moveTo(i, by + 22 + (i * 37 % 40)); x.quadraticCurveTo(i + 7, by + 30, i + 12, by + bh - 24 - (i * 13 % 30)); x.stroke(); }
-    // gold medallions under the belt
-    for (let i = 70; i < w; i += 220) {
-      x.fillStyle = "#c9a24a"; x.fillRect(i, by + bh + 40, 70, 90);
-      x.fillStyle = "#060606"; x.fillRect(i + 8, by + bh + 48, 54, 74);
-      x.strokeStyle = "#e2bf63"; x.lineWidth = 3; for (let k = 0; k < 5; k++) { x.beginPath(); x.moveTo(i + 14, by + bh + 58 + k * 13); x.lineTo(i + 56, by + bh + 58 + k * 13); x.stroke(); }
-    }
-  });
-  const kiswa = new T.MeshLambertMaterial({ map: kiswaTex });
-  const roofM = new T.MeshLambertMaterial({ color: 0x2a2a2a });
-  const kaaba = new T.Mesh(new T.BoxGeometry(12, 13.1, 11), [kiswa, kiswa, roofM, roofM, kiswa, kiswa]);
-  kaaba.position.y = 6.75; scene.add(kaaba);
-  const shadh = new T.Mesh(new T.CylinderGeometry(9.0, 9.4, .6, 4, 1), new T.MeshLambertMaterial({ color: 0xd8d2c2 }));
-  shadh.rotation.y = Math.PI / 4; shadh.scale.set(1, 1, 11.8 / 12.8); shadh.position.y = .3; scene.add(shadh);
-  const doorTex = canvasTex(256, 512, (x, w, h) => {
-    const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, "#f3dc94"); g.addColorStop(.5, "#c9a24a"); g.addColorStop(1, "#8a6a26");
-    x.fillStyle = g; x.fillRect(0, 0, w, h);
-    x.strokeStyle = "#6b4f17"; x.lineWidth = 6; x.strokeRect(14, 14, w - 28, h - 28); x.beginPath(); x.moveTo(w / 2, 14); x.lineTo(w / 2, h - 14); x.stroke();
-    for (let k = 0; k < 6; k++) { x.beginPath(); x.arc(w / 4, 60 + k * 72, 18, 0, 6.28); x.arc(3 * w / 4, 60 + k * 72, 18, 0, 6.28); x.stroke(); }
-  });
-  const door = new T.Mesh(new T.PlaneGeometry(1.9, 3.3), new T.MeshLambertMaterial({ map: doorTex, emissive: 0x2a1a00 }));
-  door.position.set(6.02, 4.0, 2.4); door.rotation.y = Math.PI / 2; scene.add(door);
-  const stone = new T.Mesh(new T.TorusGeometry(.45, .14, 8, 20), new T.MeshLambertMaterial({ color: 0xc0c0c0, emissive: 0x222222 }));
-  stone.position.set(6.05, 1.6, 5.55); stone.rotation.y = Math.PI / 4; scene.add(stone);
-  // Hateem: low white marble semicircle on the side next to the door
-  const hm = new T.MeshLambertMaterial({ color: 0xfafaf6 });
-  for (let i = 0; i <= 48; i++) {
-    const a = Math.PI * i / 48, seg = new T.Mesh(new T.BoxGeometry(1.2, 1.3, .9), hm);
-    seg.position.set(7.8 * Math.cos(a), .65, -4.5 - 8.2 * Math.sin(a)); seg.rotation.y = -a + Math.PI / 2; scene.add(seg);
-  }
-  // Maqam Ibrahim: golden cage with a small dome
-  const gold = new T.MeshLambertMaterial({ color: 0xd4af37, emissive: 0x2a1a00 });
-  const mq = new T.Group();
-  const m1 = new T.Mesh(new T.CylinderGeometry(.8, .95, 2.0, 8), new T.MeshLambertMaterial({ color: 0xf0e2b0, emissive: 0x302000, transparent: true, opacity: .9 }));
-  m1.position.y = 1.0; mq.add(m1);
-  const m2 = new T.Mesh(new T.SphereGeometry(.8, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), gold); m2.position.y = 2.0; mq.add(m2);
-  const m3 = new T.Mesh(new T.CylinderGeometry(.06, .06, .6, 6), gold); m3.position.y = 3.0; mq.add(m3);
-  mq.position.set(14, 0, 2.4); scene.add(mq);
-
-  /* Ottoman portico: a ring of arches with small domes, around the Mataf (as in the live video) */
-  const sx = 58, sz = 50, nP = 4.2;
-  const ringPt = t => { const c = Math.cos(t), s = Math.sin(t); return [sx * Math.sign(c) * Math.pow(Math.abs(c), 2 / nP), sz * Math.sign(s) * Math.pow(Math.abs(s), 2 / nP)]; };
-  const pts = []; let prev = ringPt(0), acc = 0; pts.push(prev);
-  for (let t = 0; t < Math.PI * 2; t += .002) { const p = ringPt(t); acc += Math.hypot(p[0] - prev[0], p[1] - prev[1]); if (acc >= 4.6) { pts.push(p); acc = 0; } prev = p; }
-  const stoneM = new T.MeshLambertMaterial({ color: 0xe9e1cf });
-  const pillar = new T.InstancedMesh(new T.CylinderGeometry(.45, .5, 7, 8), stoneM, pts.length);
-  const dome = new T.InstancedMesh(new T.SphereGeometry(2.1, 14, 7, 0, Math.PI * 2, 0, Math.PI / 2), new T.MeshLambertMaterial({ color: 0xf2efe6 }), pts.length);
-  const arch = new T.InstancedMesh(new T.TorusGeometry(2.3, .32, 6, 16, Math.PI), new T.MeshLambertMaterial({ color: 0xc8a96a }), pts.length);
-  const beam = new T.InstancedMesh(new T.BoxGeometry(4.8, 1.2, 5), stoneM, pts.length);
-  const MM = new T.Matrix4(), QQ = new T.Quaternion(), PP = new T.Vector3(), SS = new T.Vector3(1, 1, 1), YUP = new T.Vector3(0, 1, 0);
-  pts.forEach((p, i) => {
-    const q = pts[(i + 1) % pts.length], mid = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], ang = Math.atan2(q[1] - p[1], q[0] - p[0]);
-    QQ.setFromAxisAngle(YUP, -ang);
-    PP.set(p[0], 3.5, p[1]); MM.compose(PP, QQ, SS); pillar.setMatrixAt(i, MM);
-    PP.set(mid[0], 7, mid[1]); MM.compose(PP, QQ, SS); arch.setMatrixAt(i, MM);
-    PP.set(mid[0], 8.6, mid[1]); MM.compose(PP, QQ, SS); beam.setMatrixAt(i, MM);
-    PP.set(mid[0], 9.2, mid[1]); MM.compose(PP, QQ, SS); dome.setMatrixAt(i, MM);
-  });
-  scene.add(pillar, arch, beam, dome);
-  // tall floors of the mosque behind the portico, lit at night
-  const facadeTex = canvasTex(2048, 256, (x, w, h) => {
-    x.fillStyle = "#d9d2c0"; x.fillRect(0, 0, w, h);
-    for (let row = 0; row < 3; row++) for (let i = 0; i < w; i += 64) {
-      const y = 20 + row * 80;
-      x.fillStyle = "#fff6d8"; x.beginPath(); x.moveTo(i + 12, y + 60); x.lineTo(i + 12, y + 22); x.arc(i + 32, y + 22, 20, Math.PI, 0); x.lineTo(i + 52, y + 60); x.fill();
-      x.fillStyle = "rgba(120,100,60,.35)"; x.fillRect(i + 12, y + 62, 40, 4);
-    }
-  });
-  facadeTex.wrapS = T.RepeatWrapping; facadeTex.repeat.set(3, 1);
-  const facade = new T.Mesh(new T.CylinderGeometry(92, 92, 34, 96, 1, true), new T.MeshLambertMaterial({ map: facadeTex, side: T.BackSide, emissive: 0x3a3426 }));
-  facade.position.y = 17; scene.add(facade);
-  // lamp posts like the floodlights in the Mataf
-  const lampM = new T.MeshBasicMaterial({ color: 0xfffbe8 });
-  for (let i = 0; i < 16; i++) {
-    const a = i / 16 * Math.PI * 2, x = 44 * Math.cos(a), z = 40 * Math.sin(a);
-    const pole = new T.Mesh(new T.CylinderGeometry(.12, .15, 9, 6), new T.MeshLambertMaterial({ color: 0x777777 })); pole.position.set(x, 4.5, z); scene.add(pole);
-    const lamp = new T.Mesh(new T.SphereGeometry(.45, 8, 6), lampM); lamp.position.set(x, 9.2, z); scene.add(lamp);
-  }
-
-  /* pilgrims: body + head, mostly white ihram and black abaya, like in the video */
-  const MAX = 7000;
-  const bodyG = new T.CylinderGeometry(.19, .27, 1.3, 7); bodyG.translate(0, .65, 0);
-  const headG = new T.SphereGeometry(.13, 8, 6); headG.translate(0, 1.45, 0);
-  const body = new T.InstancedMesh(bodyG, new T.MeshLambertMaterial(), MAX);
-  const head = new T.InstancedMesh(headG, new T.MeshLambertMaterial(), MAX);
-  body.instanceMatrix.setUsage(T.DynamicDrawUsage); head.instanceMatrix.setUsage(T.DynamicDrawUsage);
-  const col = new T.Color();
-  const ag = [];
-  for (let i = 0; i < MAX; i++) {
-    const r = Math.random();
-    const kind = r < .56 ? "ihram" : r < .84 ? "abaya" : "other";
-    const c = kind === "ihram" ? [0xffffff, 0xf4f4f0, 0xeceae4][(Math.random() * 3) | 0]
-      : kind === "abaya" ? [0x111111, 0x1b1b1f, 0x262626][(Math.random() * 3) | 0]
-      : [0x4a6fa5, 0x8c6d4f, 0xa8a8a8, 0x2e7d5b, 0x7a3e3e, 0xd8c9a8][(Math.random() * 6) | 0];
-    body.setColorAt(i, col.set(c));
-    head.setColorAt(i, col.set(kind === "abaya" ? 0x111111 : [0x3b2a20, 0x5a4030, 0x2a2420, 0xf0f0f0][(Math.random() * 4) | 0]));
-    ag.push({ a: Math.random() * Math.PI * 2, u: Math.random(), sp: .7 + Math.random() * .6, ph: Math.random() * 6.28, r: 0, s: .9 + Math.random() * .22 });
-  }
-  scene.add(body, head);
-  const HATEEM_A = Math.PI / 2;
-  const rMin = a => 9.6 + 8 * Math.pow(Math.max(0, Math.cos(a - HATEEM_A)), 2);
+  const env = H3.matafEnv(scene);
+  const crowd = H3.crowd(scene, 7000, env.rMin);
   let target = .5, cur = .5, prayer = null, hateemOpen = false;
-  const M = new T.Matrix4(), Q = new T.Quaternion(), P = new T.Vector3(), S = new T.Vector3(1, 1, 1), UP = new T.Vector3(0, 1, 0);
-
-  /* camera: high angle like the live broadcast; drag to turn, pinch or wheel to zoom */
-  let yaw = -.35, pitch = .92, distc = 88, drag = null, idle = 0;
-  const el = renderer.domElement;
-  el.style.touchAction = "none";
-  const ptr = new Map();
-  el.addEventListener("pointerdown", e => { el.setPointerCapture(e.pointerId); ptr.set(e.pointerId, [e.clientX, e.clientY]); drag = true; idle = 0; });
-  el.addEventListener("pointermove", e => {
-    if (!ptr.has(e.pointerId)) return;
-    const [x0, y0] = ptr.get(e.pointerId);
-    if (ptr.size === 1) { yaw -= (e.clientX - x0) * .006; pitch = Math.max(.18, Math.min(1.5, pitch + (e.clientY - y0) * .005)); }
-    else if (ptr.size === 2) {
-      const o = [...ptr.entries()].find(([k]) => k !== e.pointerId)[1];
-      const d0 = Math.hypot(x0 - o[0], y0 - o[1]), d1 = Math.hypot(e.clientX - o[0], e.clientY - o[1]);
-      distc = Math.max(22, Math.min(200, distc * d0 / (d1 || 1)));
-    }
-    ptr.set(e.pointerId, [e.clientX, e.clientY]);
-  });
-  const up = e => { ptr.delete(e.pointerId); if (!ptr.size) drag = null; };
-  el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
-  el.addEventListener("wheel", e => { e.preventDefault(); distc = Math.max(22, Math.min(200, distc * (1 + e.deltaY * .001))); }, { passive: false });
-
-  const labels = [["কাবা", new T.Vector3(0, 15.5, 0)], ["হাতিম", new T.Vector3(0, 2.6, -11)], ["মাকামে ইবরাহিম", new T.Vector3(14, 3.6, 2.4)], ["হাজরে আসওয়াদ", new T.Vector3(6.6, 5.4, 6.4)]]
-    .map(([t, v]) => { const d = document.createElement("div"); d.className = "tw-label"; d.textContent = t; host.appendChild(d); return { d, v }; });
-
+  const view = { yaw: -.35, pitch: .92, dist: 88, min: 22, max: 200, idle: 0 };
+  H3.orbit(renderer.domElement, view);
+  const labels = H3.labels(host);
+  labels.add("কাবা", new T.Vector3(0, 15.5, 0)); labels.add("হাতিম", new T.Vector3(0, 2.6, -11));
+  labels.add("মাকামে ইবরাহিম", new T.Vector3(14, 3.6, 2.4)); labels.add("হাজরে আসওয়াদ", new T.Vector3(6.6, 5.4, 6.4));
   function resize() {
     const w = host.clientWidth, h = host.clientHeight;
-    renderer.setSize(w, h, false); el.style.width = w + "px"; el.style.height = h + "px";
+    renderer.setSize(w, h, false); renderer.domElement.style.width = w + "px"; renderer.domElement.style.height = h + "px";
     cam.aspect = w / h; cam.updateProjectionMatrix();
   }
   let last = performance.now(), raf = 0;
   function frame(t) {
     raf = requestAnimationFrame(frame);
     const dt = Math.min(.1, (t - last) / 1000); last = t;
-    if (!drag) { idle += dt; if (idle > 4) yaw += dt * .03; }
+    if (!view.drag) { view.idle += dt; if (view.idle > 4) view.yaw += dt * .03; }
     cur += (target - cur) * Math.min(1, dt * .7);
-    // people spread from the Kaaba outwards; more people fill wider rings
-    const n = Math.round(Math.pow(cur, 1.15) * MAX);
-    const outer = 15 + cur * 30;
-    body.count = head.count = n;
-    for (let i = 0; i < n; i++) {
-      const g = ag[i];
-      const inside = hateemOpen && i < 60;
-      let x, z, face;
-      if (inside) {
-        z = -6.4 - g.u * 5.6;
-        const half = Math.sqrt(Math.max(0, 7.8 * 7.8 - (z + 4.5) * (z + 4.5))) - 1.1;
-        x = (g.sp - 1) * 2 * half; face = 0;
-      } else {
-        const lo = rMin(g.a), want = Math.sqrt(lo * lo + g.u * (outer * outer - lo * lo)); // even spread over the area
-        if (!g.r) g.r = want;
-        if (prayer) {
-          const row = Math.round(want / 1.15) * 1.15;
-          g.r += (row - g.r) * Math.min(1, dt * 2);
-        } else {
-          g.r += (want - g.r) * Math.min(1, dt * .5);
-          const v = g.sp * (1.15 - .8 * cur) * 1.6;
-          g.a += v / Math.max(9, g.r) * dt;
-        }
-        const r = Math.max(g.r, rMin(g.a));
-        x = r * Math.cos(g.a); z = -r * Math.sin(g.a);
-        face = prayer ? Math.atan2(-x, -z) : -g.a;
-      }
-      const moving = !prayer && !inside;
-      const bob = moving ? Math.abs(Math.sin(t / 250 * g.sp + g.ph)) * .07 : 0;
-      P.set(x, bob, z); Q.setFromAxisAngle(UP, face);
-      const bow = prayer && (Math.floor(t / 4500 + g.ph) % 3 === 1);
-      S.set(g.s, bow ? .55 : g.s, g.s);
-      M.compose(P, Q, S); body.setMatrixAt(i, M); head.setMatrixAt(i, M);
-    }
-    body.instanceMatrix.needsUpdate = head.instanceMatrix.needsUpdate = true;
-    cam.position.set(distc * Math.cos(pitch) * Math.cos(yaw), distc * Math.sin(pitch), distc * Math.cos(pitch) * Math.sin(yaw));
+    crowd.update(dt, t, cur, prayer, hateemOpen);
+    cam.position.set(view.dist * Math.cos(view.pitch) * Math.cos(view.yaw), view.dist * Math.sin(view.pitch), view.dist * Math.cos(view.pitch) * Math.sin(view.yaw));
     cam.lookAt(0, 2, 0);
     renderer.render(scene, cam);
-    const w = host.clientWidth, h = host.clientHeight;
-    for (const L of labels) {
-      const p = L.v.clone().project(cam);
-      L.d.style.transform = `translate(${(p.x * .5 + .5) * w}px, ${(-p.y * .5 + .5) * h}px) translate(-50%,-100%)`;
-      L.d.style.opacity = p.z < 1 ? 1 : 0;
-    }
+    labels.update(cam);
   }
   function setSky(min) {
     const h = min / 60;
     const day = h > 6.3 && h < 17.8, dusk = (h >= 5.2 && h <= 6.6) || (h >= 17.4 && h <= 18.6);
     const sky = day ? (dusk ? 0xe9c9a0 : 0xbfd6e8) : 0x0b1424;
     scene.background = new T.Color(sky); scene.fog.color.set(sky);
-    // the Haram is floodlit at night, so the floor stays bright
     hemi.intensity = day ? .95 : .8; sun.intensity = day ? .55 : .25;
   }
   return {

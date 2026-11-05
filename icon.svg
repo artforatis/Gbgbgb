@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#14805F"/>
+      <stop offset=".6" stop-color="#0B5A43"/>
+      <stop offset="1" stop-color="#05301F"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F3DC94"/>
+      <stop offset=".5" stop-color="#C9A24A"/>
+      <stop offset="1" stop-color="#9C7428"/>
+    </linearGradient>
+    <linearGradient id="faceL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1c1c"/><stop offset="1" stop-color="#050505"/>
+    </linearGradient>
+    <linearGradient id="faceR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2b2b"/><stop offset="1" stop-color="#0e0e0e"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" stop-color="#d9e8e1" stop-opacity=".9"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g transform="translate(256 262) scale(.84) translate(-256 -262)">
+  <!-- arch frame -->
+  <path d="M106 430 V236 C106 150 176 92 256 92 C336 92 406 150 406 236 V430" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M128 430 V240 C128 166 186 116 256 116 C326 116 384 166 384 240 V430" fill="none" stroke="#C9A24A" stroke-opacity=".35" stroke-width="3"/>
+  <!-- crescent and star at the arch top -->
+  <circle cx="256" cy="54" r="22" fill="url(#gold)"/>
+  <circle cx="265" cy="48" r="19" fill="#0C6048"/>
+  <!-- mataf floor -->
+  <ellipse cx="256" cy="398" rx="150" ry="34" fill="url(#floor)"/>
+  <ellipse cx="256" cy="398" rx="118" ry="25" fill="none" stroke="#C9A24A" stroke-opacity=".55" stroke-width="3"/>
+  <!-- tawaf ring of dots -->
+  <g fill="#0B5A43" fill-opacity=".55">
+    <circle cx="146" cy="398" r="4"/><circle cx="170" cy="414" r="4"/><circle cx="204" cy="424" r="4"/><circle cx="242" cy="428" r="4"/>
+    <circle cx="282" cy="427" r="4"/><circle cx="318" cy="421" r="4"/><circle cx="348" cy="409" r="4"/><circle cx="366" cy="394" r="4"/>
+  </g>
+  <!-- Kaaba, three-quarter view -->
+  <polygon points="168,220 256,250 256,396 168,368" fill="url(#faceL)"/>
+  <polygon points="256,250 352,214 352,362 256,396" fill="url(#faceR)"/>
+  <polygon points="168,220 262,188 352,214 256,250" fill="#3a3a3a"/>
+  <!-- gold band (hizam) -->
+  <polygon points="168,248 256,278 256,298 168,268" fill="url(#gold)"/>
+  <polygon points="256,278 352,242 352,262 256,298" fill="url(#gold)"/>
+  <g fill="#000" fill-opacity=".35">
+    <rect x="184" y="258" width="8" height="8" transform="rotate(45 188 262)"/>
+    <rect x="208" y="266" width="8" height="8" transform="rotate(45 212 270)"/>
+    <rect x="232" y="274" width="8" height="8" transform="rotate(45 236 278)"/>
+    <rect x="276" y="276" width="8" height="8" transform="rotate(45 280 280)"/>
+    <rect x="302" y="266" width="8" height="8" transform="rotate(45 306 270)"/>
+    <rect x="328" y="256" width="8" height="8" transform="rotate(45 332 260)"/>
+  </g>
+  <!-- golden door -->
+  <polygon points="282,312 318,299 318,362 282,375" fill="url(#gold)"/>
+  <polygon points="288,318 312,309 312,356 288,365" fill="none" stroke="#7a5a1c" stroke-width="2"/>
+  <!-- edge highlight -->
+  <line x1="256" y1="250" x2="256" y2="396" stroke="#555" stroke-width="2"/>
+  </g>
+</svg>
