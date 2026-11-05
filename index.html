@@ -1375,7 +1375,7 @@ function gProgress(){
 function renderGuide(){
   $$("#gSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.g === gCur));
   const G = gData();
-  if (!G) { $("#gTitle").textContent = ""; $("#gIntro").innerHTML = ""; $("#gToc").innerHTML = ""; $("#gSteps").innerHTML = '<p class="loading">এই অংশটি পাওয়া যায়নি। অ্যাপ হালনাগাদ করুন।</p>'; return; }
+  if (!G) { $("#gTitle").textContent = ""; $("#gIntro").innerHTML = ""; $("#gToc").innerHTML = ""; $("#gSteps").innerHTML = `<p class="loading">${({ umrah:"umrah.js", hajj:"hajj.js", madinah:"madinah.js" })[gCur]} ফাইলটি পাওয়া যায়নি। অ্যাপ বা পাতা নতুন করে হালনাগাদ করুন।</p>`; return; }
   gParkPlayer();
   $("#gTitle").textContent = G.title + ": ধাপে ধাপে";
   const intro = G.intro || [];
