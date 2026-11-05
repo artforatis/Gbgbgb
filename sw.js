@@ -1,11 +1,11 @@
 // Offline cache for the Haram Guide website.
-const SHELL = "hg-shell-v2";
-const DATA = "hg-data-v2";
+const SHELL = "hg-shell-v5";
+const DATA = "hg-data-v5";
 const SHELL_FILES = [
   "./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "translit.js",
   "hateem.js", "places.js", "seerah-1.js", "seerah-2.js", "seerah-3.js",
-  "duas.js", "sunnah.js",
-  "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/fonts/fonts.css", "data/osm.json"
+  "duas.js", "sunnah.js", "tawaf.js", "haram3d.js", "guide3d.js", "umrah.js", "hajj.js", "madinah.js", "madinah-places.js", "vendor/three/three.min.js", "data/walk.json", "data/photos.json",
+  "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/fonts/fonts.css", "data/osm.json", "data/osm-madinah.json", "data/walk-madinah.json"
 ];
 
 self.addEventListener("install", e => {
@@ -25,11 +25,11 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  const live = /router\.project-osrm\.org|api\.quran\.com/.test(url.hostname);
+  const live = /router\.project-osrm\.org|valhalla1\.openstreetmap\.de|api\.quran\.com|alharamain\.gov\.sa|youtube\.com/.test(url.hostname);
   if (live) return;
 
   if (url.origin === location.origin) {
-    const isData = url.pathname.includes("/data/quran/") || url.pathname.includes("/vendor/fonts/");
+    const isData = url.pathname.includes("/data/quran/") || url.pathname.includes("/data/img/") || url.pathname.includes("/vendor/fonts/");
     if (isData) {
       // Quran files and fonts rarely change: cache first
       e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
