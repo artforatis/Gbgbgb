@@ -290,7 +290,7 @@ const Alerts = (function () {
 /* ---------- 3D Mataf (shared scene from haram3d.js) ---------- */
 function build3D(host) {
   const T = window.THREE, H3 = window.Haram3D;
-  if (!T || !H3) { host.insertAdjacentHTML("beforeend", '<p class="loading">৩ডি দেখানো যাচ্ছে না।</p>'); return null; }
+  if (!T || !H3) { host.insertAdjacentHTML("beforeend", '<p class="loading">৩ডি দেখানো যাচ্ছে না। ' + (!T ? "three.min.js" : "haram3d.js") + ' ফাইলটি পাওয়া যায়নি। অ্যাপ বা পাতা নতুন করে হালনাগাদ করুন।</p>'); return null; }
   const renderer = H3.setupRenderer(host);
   const scene = new T.Scene();
   scene.fog = new T.Fog(0x0d1726, 160, 320);
