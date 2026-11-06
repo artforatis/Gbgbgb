@@ -78,7 +78,7 @@ jobs:
           for f in *.html *.js *.webmanifest *.png *.svg; do
             [ -f "$f" ] && cp "$f" app/www/
           done
-          for f in index.html haram3d.js guide3d.js tawaf.js umrah.js hajj.js madinah.js madinah-places.js; do
+          for f in index.html haram3d.js guide3d.js tawaf.js umrah.js hajj.js madinah.js madinah-places.js cloud.js firebase-config.js; do
             [ -f "$f" ] || { echo "::error::Missing file in the repository: $f (upload it to the main folder)"; exit 1; }
           done
           ls app/www
@@ -86,7 +86,7 @@ jobs:
           cp -r data vendor app/www/
           cd app
           echo '{"name":"haram-guide","version":"1.0.0","private":true}' > package.json
-          echo '{"appId":"com.haramguide.app","appName":"Haram Guide","webDir":"www"}' > capacitor.config.json
+          echo '{"appId":"com.haramguide.app","appName":"Haram Guide","webDir":"www","plugins":{"LocalNotifications":{"smallIcon":"ic_stat_haram","iconColor":"#0B6B50"}}}' > capacitor.config.json
           npm install --no-audit --no-fund @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/local-notifications@6
           # small bridge so the web page can use the phone's notifications
           cp node_modules/@capacitor/core/dist/capacitor.js www/capacitor.js
@@ -104,6 +104,14 @@ jobs:
             cp ../icon-512.png "$d/ic_launcher_round.png"
             cp ../icon-512.png "$d/ic_launcher_foreground.png"
           done
+          # the app's own notification icon: a white Kaaba shape (Android shows it in the status bar and on each alert)
+          mkdir -p android/app/src/main/res/drawable
+          cat > android/app/src/main/res/drawable/ic_stat_haram.xml <<'XML'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+            <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M4,7 L12,3 L20,7 L20,17 L12,21 L4,17 Z M4,7.2 L12,11.2 L20,7.2 L20,8.3 L12,12.3 L4,8.3 Z M4,10 L12,14 L20,10 L20,11.7 L12,15.7 L4,11.7 Z" />
+          </vector>
+          XML
+          echo "Notification icon added"
 
       - name: Build APK
         run: |
