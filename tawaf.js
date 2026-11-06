@@ -250,7 +250,7 @@ const Alerts = (function () {
         const pend = await ln.getPending();
         const old = (pend.notifications || []).filter(n => n.id >= 1000 && n.id < 3000).map(n => ({ id: n.id }));
         if (old.length) await ln.cancel({ notifications: old });
-        if (list.length) await ln.schedule({ notifications: list.map(e => ({ id: e.id, title: e.title, body: e.body, channelId: "haram", schedule: { at: e.at, allowWhileIdle: true } })) });
+        if (list.length) await ln.schedule({ notifications: list.map(e => ({ id: e.id, title: e.title, body: e.body, channelId: "haram", smallIcon: "ic_stat_haram", iconColor: "#0B6B50", schedule: { at: e.at, allowWhileIdle: true } })) });
       } catch (e) {}
     } else {
       webTimers.forEach(clearTimeout); webTimers = [];
