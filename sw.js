@@ -1,10 +1,10 @@
 // Offline cache for the Haram Guide website.
-const SHELL = "hg-shell-v6";
-const DATA = "hg-data-v6";
+const SHELL = "hg-shell-v7";
+const DATA = "hg-data-v7";
 const SHELL_FILES = [
   "./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "translit.js",
   "hateem.js", "places.js", "seerah-1.js", "seerah-2.js", "seerah-3.js",
-  "duas.js", "sunnah.js", "tawaf.js", "haram3d.js", "guide3d.js", "umrah.js", "hajj.js", "madinah.js", "madinah-places.js", "vendor/three/three.min.js", "data/walk.json", "data/photos.json",
+  "duas.js", "sunnah.js", "tawaf.js", "haram3d.js", "guide3d.js", "umrah.js", "hajj.js", "madinah.js", "madinah-places.js", "firebase-config.js", "cloud.js", "vendor/three/three.min.js", "data/walk.json", "data/photos.json",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/fonts/fonts.css", "data/osm.json", "data/osm-madinah.json", "data/walk-madinah.json"
 ];
 
@@ -25,7 +25,7 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  const live = /router\.project-osrm\.org|valhalla1\.openstreetmap\.de|api\.quran\.com|alharamain\.gov\.sa|youtube\.com/.test(url.hostname);
+  const live = /router\.project-osrm\.org|valhalla1\.openstreetmap\.de|api\.quran\.com|alharamain\.gov\.sa|youtube\.com|firebaseio\.com|firebasedatabase\.app|identitytoolkit\.googleapis\.com|securetoken\.googleapis\.com/.test(url.hostname);
   if (live) return;
 
   if (url.origin === location.origin) {
