@@ -338,6 +338,8 @@ p{margin:.5em 0}
 <main>
 <!-- HATEEM -->
 <section class="view active" id="v-home" aria-label="হাতিম">
+  <div id="noticeBox"></div>
+  <div id="kafelaBox"></div>
   <h2>হাতিমে নামাজ: কখন, কোন গেট</h2>
   <p class="lead">হাতিম (হিজরে ইসমাইল) কাবারই অংশ। সৌদি কর্তৃপক্ষ নারী ও পুরুষের জন্য আলাদা সময় ঠিক করে দিয়েছে। ভেতরে প্রায় ১০ মিনিট থাকা যায়।</p>
   <div class="note field" id="fieldNote"></div>
@@ -348,7 +350,7 @@ p{margin:.5em 0}
     <div class="day-bar" id="dayBar"></div>
     <div class="day-ticks"><span>রাত ১২</span><span>সকাল ৬</span><span>দুপুর ১২</span><span>সন্ধ্যা ৬</span><span>রাত ১২</span></div>
     <div class="legend">
-      <span><i style="background:repeating-linear-gradient(90deg,rgba(201,162,74,.8) 0 3px,transparent 3px 6px)"></i>মহিলা: গেট ৭৪-এ অপেক্ষা</span>
+      <span><i style="background:repeating-linear-gradient(90deg,rgba(201,162,74,.8) 0 3px,transparent 3px 6px)"></i>মহিলা: <span id="lgWait">গেট ৭৪</span>-এ অপেক্ষা</span>
       <span><i style="background:var(--gold)"></i>মহিলা: হাতিম খোলা</span>
       <span><i style="background:var(--green)"></i>পুরুষ: হাতিম খোলা</span>
       <span><i style="background:rgba(11,107,80,.25)"></i>হারামে ভিড় কম</span>
@@ -584,6 +586,8 @@ p{margin:.5em 0}
 <script src="hajj.js"></script>
 <script src="madinah.js"></script>
 <script src="madinah-places.js"></script>
+<script src="firebase-config.js"></script>
+<script src="cloud.js"></script>
 <script src="haram3d.js"></script>
 <script src="guide3d.js"></script>
 <script src="tawaf.js"></script>
@@ -607,6 +611,7 @@ const CITY = {
   madinah: { center:[24.4672, 39.6112], kaaba:[24.46712, 39.61257], name:"মদিনা", home:"নববী", holy:"মসজিদে নববী", outside:"মদিনার বাইরে", osm:"data/osm-madinah.json", walk:"data/walk-madinah.json", outView:[[24.46, 39.61], 12], histView:[[24.467, 39.611], 15] }
 };
 let city = store.get("city", "makkah"); if (!CITY[city]) city = "makkah";
+if (window.HGCloud) HGCloud.applyPlaces(PLACES);
 const IS_APP = !!window.Capacitor;
 
 /* ============ theme & online state ============ */
@@ -657,7 +662,7 @@ function tick(){
     el.classList.toggle("open", left >= 0);
     el.classList.toggle("wait", left < 0 && waitLeft >= 0);
     $(".state", el).textContent = left >= 0 ? `এখন খোলা, আর ${fmtDur(left)}`
-      : waitLeft >= 0 ? (key === "women" ? "গেট ৭৪-এ অপেক্ষার সময়" : "লাইনে দাঁড়ানোর সময়")
+      : waitLeft >= 0 ? (key === "women" ? H.women.gateTag + "-এ অপেক্ষার সময়" : "লাইনে দাঁড়ানোর সময়")
       : `খুলবে ${fmtDur(untilWin(g.open, mins))} পর`;
   }
   const nl = $("#nowLine"); if (nl) nl.style.left = (mins / 1440 * 100) + "%";
@@ -668,6 +673,7 @@ addEventListener("resize", setBandH);
 /* ============ Home (from content/hateem.js) ============ */
 function renderHome(){
   $("#fieldNote").textContent = H.women.fieldNote || "";
+  $("#lgWait").textContent = H.women.gateTag;
   $("#fieldNote").hidden = !H.women.fieldNote;
   $("#hateemCols").innerHTML = ["women", "men"].map(k => {
     const g = H[k];
@@ -675,7 +681,7 @@ function renderHome(){
       <div class="who-head"><h3>${g.title}</h3><span class="time-big">${g.time}</span></div>
       <p><span class="gate-tag">${g.gateTag}</span> ${esc(g.gateText)}</p>
       <ol class="steps">${g.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
-      <div class="btn-row"><button class="btn ${k === "women" ? "gold" : ""}" data-go="${g.goto}">${k === "women" ? "গেট ৭৪-এ নিয়ে চলো" : "হাতিমে নিয়ে চলো"}</button>
+      <div class="btn-row"><button class="btn ${k === "women" ? "gold" : ""}" data-go="${g.goto}">${g.goto === "hateem" ? "হাতিমে নিয়ে চলো" : esc(g.gateTag) + "-এ নিয়ে চলো"}</button>
       ${k === "women" ? '<button class="btn ghost" data-show="wudu-w3">কাছের ওযুখানা</button>' : ""}</div></div>`;
   }).join("");
   $("#crowdList").innerHTML = H.crowd.map(c => `<li>${esc(c)}</li>`).join("");
@@ -765,14 +771,29 @@ function initMap(){
   if (!navigator.onLine) baseName = "off";
   setBase(baseName);
   L.control.zoom({ position:"bottomleft" }).addTo(map);
-  for (const p of PLACES) {
-    const icon = L.divIcon({ className:"", iconSize:[30,30], iconAnchor:[15,30], html:`<div class="pin ${p.kind}" data-pin="${p.id}"><span>${p.label}</span></div>` });
-    const m = L.marker([p.lat, p.lng], { icon, title:p.name, keyboard:true });
-    m.on("click", () => openSheet(p.id));
-    markers[p.id] = m;
-  }
+  for (const p of PLACES) makeMarker(p);
   setCity(city, false); map.setView(HARAM, city === "madinah" ? 16 : 17);
 }
+function makeMarker(p){
+  const icon = L.divIcon({ className:"", iconSize:[30,30], iconAnchor:[15,30], html:`<div class="pin ${p.kind}" data-pin="${p.id}"><span>${esc(p.label || "•")}</span></div>` });
+  const m = L.marker([p.lat, p.lng], { icon, title:p.name, keyboard:true });
+  m.on("click", () => openSheet(p.id));
+  markers[p.id] = m;
+  return m;
+}
+// places added while the app runs (hotel, admin, a kafela member, or a place the admin just saved)
+window.addPlace = function(p){
+  if (!p) return null;
+  p = Object.assign({ city: p.lat > 23 ? "madinah" : "makkah", label:"•", text:"", tips:[] }, p);
+  const i = PLACES.findIndex(x => x.id === p.id);
+  if (i >= 0) PLACES[i] = p; else PLACES.push(p);
+  if (map) { if (markers[p.id]) markers[p.id].remove(); makeMarker(p); applyFilter(false); }
+  return p;
+};
+window.removePlace = function(id){
+  const i = PLACES.findIndex(x => x.id === id); if (i >= 0) PLACES.splice(i, 1);
+  if (markers[id]) { markers[id].remove(); delete markers[id]; }
+};
 function applyFilter(move = true){
   if (!map) return;
   for (const p of PLACES) {
@@ -1329,7 +1350,7 @@ function renderDuas(){
       html += `<article class="dua"><h3>${esc(d.t)}</h3><div class="ref">${esc(d.ref)}${d.times ? ` <span class="times">${esc(d.times)}</span>` : ""}</div>
       ${d.note ? `<p class="lead">${esc(d.note)}</p>` : ""}
       <div class="ar full">${esc((d.w || []).map(x => x[0]).join(" "))}</div>
-      <div class="wbw">${(d.w || []).map(([a, m]) => `<div class="w"><div class="wa">${esc(a)}</div><div class="wb">${esc(m)}</div></div>`).join("")}</div>
+      ${(d.w || []).some(x => x[1]) ? `<div class="wbw">${(d.w || []).map(([a, m]) => `<div class="w"><div class="wa">${esc(a)}</div><div class="wb">${esc(m)}</div></div>`).join("")}</div>` : ""}
       <p><span class="lbl">উচ্চারণ: </span><span class="pron">${esc(d.pron)}</span></p>
       <p class="mean"><span class="lbl">অর্থ: </span>${esc(d.mean)}</p></article>`;
     });
@@ -1469,6 +1490,7 @@ renderHome(); tick(); setInterval(tick, 20000); setBandH(); setCity(city, false)
 const startView = (location.hash || "#home").slice(1);
 if (window.TawafView) TawafView.init();
 show(["home","guide","map","tawaf","quran","seerah","sunnah"].includes(startView) ? startView : "home");
+if (window.HGCloud) HGCloud.start();
 if (!IS_APP && "serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
 </body>
